@@ -7,8 +7,6 @@
  */
 require __DIR__ . '/../vendor/autoload.php';
 require_once  __DIR__ . '/../config/bootstrap.php';
-use DataFixtures\Customer;
-use DataFixtures\ContactsType;
 // use entities\Person;
 // use entities\Customer;
 use entities\ContactType;
@@ -31,7 +29,7 @@ echo('</pre>');
 
 // $entityManager->persist($pers);
 // $entityManager->flush();
- $res = $entityManager->getRepository('entities\Customer')->find(1);
+ $res = $entityManager->getRepository('entities\Customer')->findAll();//getRepository('entities\Customer')->find(1);
 
 /*
  $res = $entityManager->getRepository('entities\Customer')->find(1);
@@ -66,7 +64,7 @@ $entityManager->flush();*/
 echo('<pre>');
 // print_r(ContactsType::getContactsType($contT));
 //  var_dump($res->getArray());
-  print_r($res->getGraphArray());
+  print_r(array_map(function($contact){return $contact->getGraphArray();},$res));
 echo('</pre>');
 //
 //foreach ($pers as $per) {

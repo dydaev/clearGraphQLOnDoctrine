@@ -26,13 +26,15 @@ type customer {
 }
 
 type Query {
+  test: [String]
   allTags: [tag]
   countOfTags(num: Int!): Int
   allContactTypes: [contactType]
+  contactType(id: Int!): contactType
+  contactById(uuid: String!): contact
   allCustomers: [customer]
   countOfCustomers: Int
-  customer(uuid: String!): customer
-  contactType(id: Int!): contactType
+  customerById(uuid: String!): customer
 }
 
 #type Mutation {

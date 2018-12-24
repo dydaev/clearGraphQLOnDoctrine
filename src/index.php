@@ -7,6 +7,7 @@ require_once __DIR__.'/../config/DoctrineManager.php';
 use Siler\Graphql;
 use Siler\Http\Request;
 use Siler\Http\Response;
+use DoctrineManager;
 
 Response\header('Access-Control-Allow-Origin', '*');
 Response\header('Access-Control-Allow-Headers', 'content-type');

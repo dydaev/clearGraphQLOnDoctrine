@@ -8,7 +8,7 @@ class ContactResolve
         return function($root, $args, $context)
     {
         return [
-            'uuid' => 'String',
+            'uuid' => $args['uuid'],
             'type' => [],
             'value' => 'String'];
     };}

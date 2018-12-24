@@ -11,14 +11,18 @@ use Resolvers\Types\ContactResolve;
 
 return [
     'Query' => [
+        'test' => function($root, $args, $context){return array_keys($context);},
+
         'allTags'=> TagResolve::getAllTags(),
         'countOfTags'=>  TagResolve::getCountOfTags(),
 
         'allContactTypes' => ContactsTypeResolve::getAllContactsType(),
         'contactType' => ContactsTypeResolve::getContactsType(),
 
+        'contactById' => ContactResolve::getContact(),
+
         'allCustomers' => CustomerResolve::getAllCustomers(),
         'countOfCustomers' => CustomerResolve::getCountOfCustomers(),
-        'customer' => CustomerResolve::getCustomer(),
+        'customerById' => CustomerResolve::getCustomer(),
     ]
 ];
