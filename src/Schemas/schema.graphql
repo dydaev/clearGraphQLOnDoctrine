@@ -1,0 +1,41 @@
+type tag {
+  id: Int
+  name: String
+  color: String
+}
+
+type contactType {
+  id: Int
+  type: String
+  regex: String
+  prefix: String
+}
+
+type contact {
+  uuid: String
+  type: contactType
+  value: String
+}
+
+type customer {
+  uuid: String
+  name: String
+  discount_card: Int
+  tags: [tag]
+  contacts: [contact]
+}
+
+type Query {
+  allTags: [tag]
+  countOfTags(num: Int!): Int
+  allContactTypes: [contactType]
+  allCustomers: [customer]
+  countOfCustomers: Int
+  customer(uuid: String!): customer
+  contactType(id: Int!): contactType
+}
+
+#type Mutation {
+#  start(roomName: String): Room
+#  chat(roomName: String, body: String): Message
+#}
