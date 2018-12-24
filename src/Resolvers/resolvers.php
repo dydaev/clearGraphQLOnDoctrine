@@ -17,7 +17,7 @@ return [
         'countOfTags'=>  TagResolve::getCountOfTags(),
 
         'allContactTypes' => ContactsTypeResolve::getAllContactsType(),
-        'contactType' => ContactsTypeResolve::getContactsType(),
+        'contactTypeById' => ContactsTypeResolve::getContactsTypeById(),
 
         'contactById' => ContactResolve::getContact(),
 

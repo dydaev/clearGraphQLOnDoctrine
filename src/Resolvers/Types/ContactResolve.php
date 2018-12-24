@@ -6,10 +6,14 @@ class ContactResolve
 {
     public static function getContact(){
         return function($root, $args, $context)
-    {
-        return [
-            'uuid' => $args['uuid'],
-            'type' => [],
-            'value' => 'String'];
-    };}
+        {
+
+            $EM = $context['EntityManager'];
+
+            $contact = $EM->getRepository('entities\Contact')->findOneBy([ 'uuid' => $args['uuid'] ]);
+            if (!empty($contact)) {
+                return $contact->getGraphArray();
+            }
+
+        };}
 }

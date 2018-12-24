@@ -1,17 +1,21 @@
 <?php
 namespace Resolvers\Types;
 
+require_once __DIR__.'/../../../vendor/autoload.php';
 
 class CustomerResolve
 {
+
     public static function getCustomer(){
         return function($root, $args, $context){
 
             $EM = $context['EntityManager'];
 
-            $res = $EM->getRepository('entities\Customer')->findOneBy([ 'uuid' => $args['uuid'] ]);
+            $person = $EM->getRepository('entities\Person')->findOneBy([ 'uuid' => $args['uuid'] ]);
 
-            return $res;
+            if (!empty($person)) {
+                return $person->getCustomer()->getGraphArray();
+            }
     };}
 
     public static function getAllCustomers(){
@@ -28,6 +32,6 @@ class CustomerResolve
         return function($root, $args, $context){
 
         $res = self::getAllCustomers();
-        return count($res()) ;
+        return  !empty($res) ? count($res($root, $args, $context)) : 0 ;
     };}
 }

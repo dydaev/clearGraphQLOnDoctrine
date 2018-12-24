@@ -28,9 +28,9 @@ type customer {
 type Query {
   test: [String]
   allTags: [tag]
-  countOfTags(num: Int!): Int
+  countOfTags: Int
   allContactTypes: [contactType]
-  contactType(id: Int!): contactType
+  contactTypeById(id: Int!): contactType
   contactById(uuid: String!): contact
   allCustomers: [customer]
   countOfCustomers: Int
