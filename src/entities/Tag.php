@@ -4,24 +4,24 @@ namespace entities;
 /**
 * @Entity @Table(name="tag")
 */
-class Tag
+class Tag extends ProtoForGraph
 {
     /**
      * @Id
      * @Column(type="integer")
      * @GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @Column(type="string", length=50, unique=true)
      */
-    private $name;
+    protected $name;
 
     /**
      * @Column(type="string", length=25, nullable=true)
      */
-    private $color;
+    protected $color;
 
     /**
      * @return mixed

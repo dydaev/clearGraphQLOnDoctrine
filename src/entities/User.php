@@ -3,7 +3,7 @@ namespace entities;
 /**
 * @Entity @Table(name="user")
 */
-class User
+class User extends ProtoForGraph
 {
     /**
      * @Id
@@ -16,12 +16,12 @@ class User
      * @OneToOne(targetEntity="Person", inversedBy="user")
      * @JoinColumn(name="person_id", referencedColumnName="id")
      */
-	private $person;
+	protected $person;
 
     /**
      * @Column(type="string", length=30)
      */
-    private $login;
+    protected $login;
 
     /**
      * @Column(type="string")

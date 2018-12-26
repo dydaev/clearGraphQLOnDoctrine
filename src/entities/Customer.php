@@ -10,7 +10,7 @@ class Customer extends ProtoForGraph
      * @Column(type="integer")
      * @GeneratedValue(strategy="AUTO")
      */
-    protected $id;
+    private $id;
 
     /**
      * @OneToOne(targetEntity="Person", inversedBy="customer")
@@ -29,7 +29,6 @@ class Customer extends ProtoForGraph
     public function initialRenamedArray()
     {
         $this->renamedKeys = [
-            'id' => null,
             'person' => function () {
                 return [
                     'uuid' => $this->person->getUUID(),

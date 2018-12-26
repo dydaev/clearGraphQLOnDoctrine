@@ -4,7 +4,7 @@ type tag {
   color: String
 }
 
-type contactType {
+type contactsType {
   id: Int
   type: String
   regex: String
@@ -13,7 +13,7 @@ type contactType {
 
 type contact {
   uuid: String
-  type: contactType
+  type: contactsType
   value: String
 }
 
@@ -27,17 +27,46 @@ type customer {
 
 type Query {
   test: [String]
+
   allTags: [tag]
   countOfTags: Int
-  allContactTypes: [contactType]
-  contactTypeById(id: Int!): contactType
+
+  allContactsTypes: [contactsType]
+  contactsTypeById(id: Int!): contactsType
+
   contactById(uuid: String!): contact
+
   allCustomers: [customer]
   countOfCustomers: Int
   customerById(uuid: String!): customer
 }
 
-#type Mutation {
+type Mutation {
+
+  createTag(name: String!, color: String): tag
+  updateTag(id: Int!, name: String, color: String): tag
+  deleteTag(id: Int!): tag
+
+  createContactsType(type: String!, regex: String, prefix: String): contactsType
+  updateContactsType(id: Int!, type: String, regex: String, prefix: String): contactsType
+  deleteContactsType(id: Int!): contactsType
+
+  createContact(typeId: Int!, value: String!): contact
+  createContactForPerson(personUuid: String!, typeId: Int!, value: String!): contact
+  updateContact(uuid: String!, typeId: Int, value: String): contact
+  deleteContact(uuid: String!): contact
+
+  addNewTagToCustomer(uuid: String!, tagName: String!, tagColor: String): customer
+  addTagByIdToCustomer(uuid: String!, tagId: Int!): customer
+  addContactToCustomer(personUuid: String!, contactUuid: String!): customer
+  deleteTagOfCustomer(uuid: String!, tagId: Int, tagName: String): customer
+  createCustomer(name: String, discount_card: Int ,tags: [tag], contacts: [contact]!): customer
+  updateCustomer(uuid: String!, name: String, discount_card: Int ,tags: [tag], contacts: [contact]): customer
+  deleteCustomer(uuid: String!): customer
+
+#  create():
+#  update():
+#  delete():
 #  start(roomName: String): Room
 #  chat(roomName: String, body: String): Message
-#}
+}

@@ -11,18 +11,40 @@ use Resolvers\Types\ContactResolve;
 
 return [
     'Query' => [
-        'test' => function($root, $args, $context){return array_keys($context);},
+        'test' => 'testRequest',
 
         'allTags'=> TagResolve::getAllTags(),
         'countOfTags'=>  TagResolve::getCountOfTags(),
 
-        'allContactTypes' => ContactsTypeResolve::getAllContactsType(),
-        'contactTypeById' => ContactsTypeResolve::getContactsTypeById(),
+        'allContactsTypes' => ContactsTypeResolve::getAllContactsType(),
+        'contactsTypeById' => ContactsTypeResolve::getContactsTypeById(),
 
         'contactById' => ContactResolve::getContact(),
 
         'allCustomers' => CustomerResolve::getAllCustomers(),
         'countOfCustomers' => CustomerResolve::getCountOfCustomers(),
         'customerById' => CustomerResolve::getCustomer(),
+    ],
+    'Mutation' => [
+        'createTag'=> TagResolve::createTag(),
+        'updateTag'=> TagResolve::updateTag(),
+        'deleteTag'=> TagResolve::deleteTag(),
+
+        'createContactsType'=> ContactsTypeResolve::createType(),
+        'updateContactsType'=> ContactsTypeResolve::updateType(),
+        'deleteContactsType'=> ContactsTypeResolve::deleteType(),
+
+        'createContact'=> ContactResolve::createContact(),
+        'createContactForPerson'=> ContactResolve::getContact(),
+        'updateContact'=> ContactResolve::updateContact(),
+        'deleteContact'=> ContactResolve::deleteContact(),
+
+        'addNewTagToCustomer'=> '',
+        'addTagByIdToCustomer'=> '',
+        'addContactToCustomer'=> ContactResolve::updateContact(),
+        'deleteTagOfCustomer'=> '',
+        'createCustomer'=> '',
+        'updateCustomer'=> '',
+        'deleteCustomer'=> '',
     ]
 ];

@@ -29,8 +29,14 @@ echo('</pre>');
 
 // $entityManager->persist($pers);
 // $entityManager->flush();
- $res = $entityManager->getRepository('entities\Customer')->findAll();//getRepository('entities\Customer')->find(1);
+// $res = $entityManager->getRepository('entities\Customer')->findAll();//getRepository('entities\Customer')->find(1);
+$res = $entityManager->getRepository('entities\Tag')->findAll();
 
+
+ echo('<pre>');
+
+ print_r($res);
+echo('</pre>');
 /*
  $res = $entityManager->getRepository('entities\Customer')->find(1);
  $type = $entityManager->getRepository('entities\ContactType')->findOneBy(['type' => 'facebook']);

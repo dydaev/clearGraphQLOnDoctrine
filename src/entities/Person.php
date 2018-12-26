@@ -159,9 +159,21 @@ class Person extends ProtoForGraph
     }
 
     /**
+     * @param Tag $tag
+     * @return boolean
+     */
+    public function addTag(Tag $tag): bool
+    {
+        if (!$this->hasTag($tag))
+            return $this->tags->add($tag);
+
+        return false;
+    }
+
+    /**
      * @return mixed
      */
-    public function getCustomer()
+    public function getCustomer(): \entities\Customer
     {
         return $this->customer;
     }
@@ -208,15 +220,17 @@ class Person extends ProtoForGraph
     {
         $this->contacts = $contactArray;
     }
-         /**
-     * Add contacts
-     *
-     * @param (Contact $contactArray
-     */
-    public function addContact(Contact $contact)
-    {
 
-        $this->contacts->add($contact);
+    /**
+     * @param Contact $contact
+     * @return boolean
+     */
+    public function addContact(Contact $contact): bool
+    {
+        if (!$this->hasTag($contact))
+            return $this->tags->add($contact);
+
+        return false;
     }
 
     /**
@@ -235,4 +249,69 @@ class Person extends ProtoForGraph
         $this->name = $name;
     }
 
+    /**
+     * @param Tag $tag
+     * @return boolean
+     */
+    public function hasTag(Tag $tag):bool
+    {
+        return $this->tag->contains($tag);
+    }
+
+    /**
+     * @param int $id
+     * @return bool
+     */
+    public function hasTagById($id): bool {
+        return $this->tags->exists(function($key, Tag $personTag) use ($id){
+            return $personTag->getId() === $id;
+        });
+    }
+
+    /**
+     * @param string $name
+     * @return bool
+     */
+    public function hasTagByName($name): bool {
+        return $this->tags->exists(function($key, Tag $personTag) use ($name){
+            return $personTag->getName() === $name;
+        });
+    }
+
+    /**
+     * @param Contact $contact
+     * @return boolean
+     */
+    public function hasContact(Contact $contact):bool
+    {
+        return $this->contacts->contains($contact);
+    }
+
+    /**
+     * @param int $id
+     * @return bool
+     */
+    public function hasContactById($id): bool {
+        return $this->contacts->exists(function($key, Contact $personTag) use ($id){
+            return $personTag->getId() === $id;
+        });
+    }
+
+    /**
+     * @param string $value
+     * @return bool
+     */
+    public function hasContactByValue($value): bool {
+        return $this->tags->exists(function($key, Contact $personTag) use ($value){
+            return $personTag->getValue() === $value;
+        });
+    }
+
+    /**
+     * @return bool
+     */
+    public function removeAllTags(): bool {
+        $this->tags->clear(); //tags = new ArrayCollection();
+        return true;
+    }
 }
