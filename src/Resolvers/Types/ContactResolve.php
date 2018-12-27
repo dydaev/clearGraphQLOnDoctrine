@@ -32,7 +32,7 @@ class ContactResolve
                     $EM->flush();
 
                     return $contact;
-                } else throw new Error("contact invalid");
+                }// else throw new Error("contact invalid");
             }
         }
         return null;
@@ -59,7 +59,7 @@ class ContactResolve
 
                         $contact->setType($type);
                         $isChanges = true;
-                    } else throw new Error('incorrect type for contact');
+                    } //else throw new Error('incorrect type for contact');
                 }
 
                 if(!empty($args['value']) && $contact->getValue() !== $args['value']) {
@@ -75,7 +75,7 @@ class ContactResolve
 
                         $contact->setValue($person);
                         $isChanges = true;
-                    } else throw new Error('incorrect person for contact');
+                    }// else throw new Error('incorrect person for contact');
                 }
 
                 if ($isChanges) {
@@ -84,7 +84,7 @@ class ContactResolve
                 }
 
                 return $contact;
-            } else throw new Error('contact for updating is not found');
+            }// else throw new Error('contact for updating is not found');
         }
         return null;
     }

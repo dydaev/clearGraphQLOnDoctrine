@@ -96,9 +96,9 @@ class Contact extends ProtoForGraph
     }
 
     /**
-     * @return mixed
+     * @return ContactType
      */
-    public function getType()
+    public function getType(): ContactType
     {
         return $this->type;
     }
@@ -112,9 +112,9 @@ class Contact extends ProtoForGraph
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getValue()
+    public function getValue(): string
     {
         return $this->value;
     }

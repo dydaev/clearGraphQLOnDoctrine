@@ -10,6 +10,8 @@ namespace tests\Resolvers\Types;
 
 require_once __DIR__.'/../../../vendor/autoload.php';
 
+use entities\Contact;
+use entities\Person;
 use entities\Tag;
 use Resolvers\Types\PersonResolve;
 use PHPUnit\Framework\TestCase;
@@ -126,5 +128,113 @@ class PersonResolveTest extends TestCase
         })->toArray();
 
         $this->assertEquals($args['tags'],$res);
+    }
+
+    public function testPersonAddNewContact() {
+        $args = [
+            'uuid' => 'e92d6f69-8dc4-46cd-a9e3-526753a71072',
+            'contacts' => [
+                [
+                    'value' => 'Jora',
+                    'typeId'=> 9
+                ]
+            ]
+        ];
+
+        PersonResolve::entityUpdate(self::$EM, $args);
+
+        $pers = self::$EM->getRepository('entities\Person')->findOneBy(['uuid' => $args['uuid']]);
+
+        $res = $pers->getContacts()->map(function(Contact $contact){
+            return [
+                'value' => $contact->getValue(),
+                'typeId' => $contact->getType()->getId()
+            ];
+        })->toArray();
+
+        $this->assertEquals($args['contacts'], $res);
+    }
+
+    public function testPersonAddNewContact2() {
+        $args = [
+            'uuid' => 'e92d6f69-8dc4-46cd-a9e3-526753a71072',
+            'contacts' => [
+                [
+                    'value' => 'Jora',
+                    'typeId'=> 9
+                ],
+                [
+                    'value' => 'FilipKirkorov',
+                    'typeId'=> 7
+                ]
+            ]
+        ];
+
+        PersonResolve::entityUpdate(self::$EM, $args);
+
+        $pers = self::$EM->getRepository('entities\Person')->findOneBy(['uuid' => $args['uuid']]);
+
+        $res = $pers->getContacts()->map(function(Contact $contact){
+            return [
+                'value' => $contact->getValue(),
+                'typeId' => $contact->getType()->getId()
+            ];
+        })->toArray();
+
+        $this->assertEquals($args['contacts'], $res);
+    }
+
+    public function testPersonUpdateNewContact() {
+        $args = [
+            'uuid' => 'e92d6f69-8dc4-46cd-a9e3-526753a71072',
+            'contacts' => [
+                [
+                    'value' => 'Jora',
+                    'typeId'=> 9
+                ],
+                [
+                    'value' => 'FilipKirkorovBulgaria',
+                    'typeId'=> 7
+                ]
+            ]
+        ];
+
+        PersonResolve::entityUpdate(self::$EM, $args);
+
+        $pers = self::$EM->getRepository('entities\Person')->findOneBy(['uuid' => $args['uuid']]);
+
+        $res = $pers->getContacts()->map(function(Contact $contact){
+            return [
+                'value' => $contact->getValue(),
+                'typeId' => $contact->getType()->getId()
+            ];
+        })->toArray();
+
+        $this->assertEquals($args['contacts'], $res);
+    }
+
+    public function testPersonDeleteFirstContact() {
+        $args = [
+            'uuid' => 'e92d6f69-8dc4-46cd-a9e3-526753a71072',
+            'contacts' => [
+                [
+                    'value' => 'FilipKirkorovBulgaria',
+                    'typeId'=> 7
+                ]
+            ]
+        ];
+
+        PersonResolve::entityUpdate(self::$EM, $args);
+
+        $pers = self::$EM->getRepository('entities\Person')->findOneBy(['uuid' => $args['uuid']]);
+
+        $res = $pers->getContacts()->map(function(Contact $contact){
+            return [
+                'value' => $contact->getValue(),
+                'typeId' => $contact->getType()->getId()
+            ];
+        })->toArray();
+
+        $this->assertEquals($args['contacts'], $res);
     }
 }

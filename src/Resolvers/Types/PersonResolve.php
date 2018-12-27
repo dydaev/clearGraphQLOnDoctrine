@@ -20,7 +20,6 @@ class PersonResolve
     public static function entityNew($EM, $args): \entities\Person
     {
       $person = new Person();
-      $customer = new Customer;
 
       if(!empty($args['name'])) $person->setName();
 
@@ -56,7 +55,6 @@ class PersonResolve
         if (!empty($args['uuid'])) {
 
             $person = $EM->getRepository('entities\Person')->findOneBy([ 'uuid' => $args['uuid'] ]);
-//            $person = new Person();
 
             if (!empty($person)) {
 
@@ -79,7 +77,7 @@ class PersonResolve
                         $person->getTags()->map(function (Tag $tag) use ($updatingTags, $person, &$isChangedPerson) {
 
                             if (!current(array_filter($updatingTags, function ($updatingTag) use ($tag) {
-                                return $tag->getName() === $updatingTag['name'];
+                                return (!empty($updatingTag['name']) && $tag->getName() === $updatingTag['name']);
                             }))) {
                                 $person->getTags()->removeElement($tag);
                                 $isChangedPerson = true;
@@ -109,10 +107,54 @@ class PersonResolve
                     } else $isChangedPerson = $person->removeAllTags();
                 }
 
-                //TODO : updating contacts
                 if(!empty($args['contacts'])) {
 
+                    $updatingContacts = $args['contacts'];
+
+                    if (count($updatingContacts) > 0) {
+
+                        // removing $person contacts not contained in the $updatingContacts
+                        //
+                        $person->getContacts()->map(function (Contact $contact) use ($updatingContacts, $person, &$isChangedPerson) {
+
+                            if (!current(array_filter($updatingContacts, function ($updatingContact) use ($contact) {
+                                return (!empty($updatingContact['uuid']) && $contact->getUUID() === $updatingContact['uuid']);
+                            }))) {
+
+                                $person->getContacts()->removeElement($contact);
+                                $isChangedPerson = true;
+                            }
+
+                        });
+
+                        // adding and updating tags contained in the $updatingContacts to $person
+                        //
+                        foreach ($updatingContacts as $updatingContact) {
+
+                            $contactFromDB = [];
+
+                            switch (true) {
+                                case (!empty($updatingContact['uuid'])):
+                                    $contactFromDB = $EM->getRepository('entities\Contact')->findOneBy(['uuid' => $updatingContact['uuid']]);
+
+                                    if (!empty($contactFromDB)) {
+
+                                        $contactFromDB = ContactResolve::entityUpdate($EM, $updatingContact);
+                                        break;
+                                    }
+                                case (!empty($updatingContact['value']) && !empty($updatingContact['typeId'])):
+
+                                    $contactFromDB = ContactResolve::entityNew($EM, $updatingContact);
+
+                            }
+
+                            if (!empty($contactFromDB) && $person->addContact($contactFromDB)) $isChangedPerson = true;
+
+                        }
+
+                    } else $isChangedPerson = $person->removeAllTags();
                 }
+
 
                 if ($isChangedPerson){
 
@@ -122,7 +164,7 @@ class PersonResolve
                 }
 
                 return $person;
-            } else throw new Error('contact for updating is not found');
+            }// else throw new Error('contact for updating is not found');
         }
         return null;
     }

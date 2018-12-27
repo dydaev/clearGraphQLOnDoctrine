@@ -104,9 +104,9 @@ class Person extends ProtoForGraph
 //    }
 
     /**
-     * @return mixed
+     * @return Role
      */
-    public function getRoles()
+    public function getRoles(): Role
     {
         return $this->roles;
     }
@@ -120,17 +120,17 @@ class Person extends ProtoForGraph
     }
 
     /**
-     * @return mixed
+     * @return integer
      */
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
 
     /**
-     * @return mixed
+     * @return User
      */
-    public function getUser()
+    public function getUser(): User
     {
         return $this->user;
     }
@@ -206,7 +206,7 @@ class Person extends ProtoForGraph
      /**
      * Set contacts
      *
-     * @param (Contact $contactArray
+     * @param Contact $contactArray
      */
     public function setContacts(Contact $contactArray)
     {
@@ -215,7 +215,7 @@ class Person extends ProtoForGraph
      /**
      * Add contacts
      *
-     * @param (Contact $contactArray
+     * @param Contact $contactArray
      */
     public function addContacts(Contact $contactArray)
     {
@@ -228,16 +228,18 @@ class Person extends ProtoForGraph
      */
     public function addContact(Contact $contact): bool
     {
-        if (!$this->hasTag($contact))
-            return $this->tags->add($contact);
+        if (!$this->hasContact($contact)) {
+            $contact->setPerson($this);
+            return $this->contacts->add($contact);
+        }
 
         return false;
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
