@@ -34,9 +34,11 @@ class TagResolve{
      * $args : arguments for tag entity (name, color ...etc)
      */
     public static function entityUpdate($EM, $args) {
-        if (!empty($args['id'])) {
+        if (!empty($args['id']) || !empty($args['name']) ) {
 
-            $tag = $EM->getRepository('entities\Tag')->find($args['id']);
+            $tag = !empty($args['id'])
+                ? $EM->getRepository('entities\Tag')->find($args['id'])
+                : $EM->getRepository('entities\Tag')->findOneBy([ 'name' => $args['name'] ]);
 
             if (!empty($tag)) {
 

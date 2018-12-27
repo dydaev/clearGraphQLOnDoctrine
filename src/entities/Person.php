@@ -2,6 +2,7 @@
 namespace entities;
 
 use \Doctrine\Common\Collections\ArrayCollection as ArrayCollection;
+use Doctrine\ORM\PersistentCollection;
 use Ramsey\Uuid\Uuid;
 
 require __DIR__ . '/../../vendor/autoload.php';
@@ -145,7 +146,7 @@ class Person extends ProtoForGraph
     /**
      * @return mixed
      */
-    public function getTags()
+    public function getTags(): PersistentCollection
     {
         return $this->tags;
     }
@@ -173,7 +174,7 @@ class Person extends ProtoForGraph
     /**
      * @return mixed
      */
-    public function getCustomer(): \entities\Customer
+    public function getCustomer(): Customer
     {
         return $this->customer;
     }
@@ -181,7 +182,7 @@ class Person extends ProtoForGraph
     /**
      * @param mixed $customer
      */
-    public function setCustomer($customer)
+    public function setCustomer(Customer $customer)
     {
         $this->customer = $customer;
     }
@@ -189,7 +190,7 @@ class Person extends ProtoForGraph
     /**
      * @return mixed
      */
-    public function getContacts()
+    public function getContacts(): PersistentCollection
     {
         return $this->contacts;
     }
@@ -255,7 +256,7 @@ class Person extends ProtoForGraph
      */
     public function hasTag(Tag $tag):bool
     {
-        return $this->tag->contains($tag);
+        return $this->tags->contains($tag);
     }
 
     /**

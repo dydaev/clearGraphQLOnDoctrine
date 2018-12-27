@@ -68,38 +68,43 @@ class PersonResolve
                     $isChangedPerson = true;
                 }
 
-                $updatingTags = $args['tags'];
+                if(!empty($args['tags'])) {
 
-                if(count($updatingTags) > 0) {
+                    $updatingTags = $args['tags'];
 
-                    // removing $person tags not contained in the $updatingTags
-                    //
-                    $person->getTags()->map(function(Tag $tag) use ($updatingTags, $person) {
+                    if (count($updatingTags) > 0) {
 
-                        if (!current(array_filter($updatingTags, function($updatingTag) use ($tag) {
-                            return $tag->getName() === $updatingTag['name'];
-                        })))
-                            $person->getTags()->removeElement($tag);
+                        // removing $person tags not contained in the $updatingTags
+                        //
+                        $person->getTags()->map(function (Tag $tag) use ($updatingTags, $person) {
 
-                    });
+                            if (!current(array_filter($updatingTags, function ($updatingTag) use ($tag) {
+                                return $tag->getName() === $updatingTag['name'];
+                            })))
+                                $person->getTags()->removeElement($tag);
 
-                    // adding and updating tags contained in the $updatingTags to $person
-                    //
-                    foreach ($updatingTags as $updatingTag) {
+                        });
 
-                        if (!empty($updatingTag['name'])) {
-                            $tagFromDB = $EM->getRepository('entities\Tag')->findOneBy([ 'name' => $updatingTag['name'] ]);
+                        // adding and updating tags contained in the $updatingTags to $person
+                        //
+                        foreach ($updatingTags as $updatingTag) {
 
-                            if (empty($tagFromDB))
-                                $tagFromDB = TagResolve::entityNew($EM, $updatingTag);
-                            else
-                                $tagFromDB = TagResolve::entityUpdate($EM, $updatingTag);
+                            if (!empty($updatingTag['name'])) {
 
-                            if (!empty($tagFromDB)) $isChangedPerson = $person->addTag($tagFromDB);
+                                $tagFromDB = $EM->getRepository('entities\Tag')->findOneBy(['name' => $updatingTag['name']]);
+
+                                if (empty($tagFromDB))
+                                    $tagFromDB = TagResolve::entityNew($EM, $updatingTag);
+                                else
+                                    $tagFromDB = TagResolve::entityUpdate($EM, $updatingTag);
+
+                                if (!empty($tagFromDB)) $isChangedPerson = $person->addTag($tagFromDB);
+
+                            }
                         }
-                    }
 
-                } else $isChangedPerson = $person->removeAllTags();
+                    } else $isChangedPerson = $person->removeAllTags();
+                }
 
                 //TODO : updating contacts
 

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- https://phpunit.de/manual/7.3/en/index.html -->
+     <!--colors="true"-->
+<phpunit
+     colors="true"
+     bootstrap="vendor/autoload.php"
+     beStrictAboutTestsThatDoNotTestAnything="true"
+>
+    <php>
+        <ini name="error_reporting" value="-1" />
+    </php>
+
+    <testsuites>
+        <testsuite name="Tests for GraphQL">
+            <directory>tests</directory>
+        </testsuite>
+    </testsuites>
+</phpunit>
