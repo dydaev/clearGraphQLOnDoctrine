@@ -63,4 +63,6 @@ class Tag extends ProtoForGraph
         $this->color = $color;
     }
 
+    //TODO : do tag manyToMany
+
 }

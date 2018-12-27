@@ -32,15 +32,15 @@ echo('</pre>');
 // $entityManager->persist($pers);
 // $entityManager->flush();
 // $res = $entityManager->getRepository('entities\Customer')->findAll();//getRepository('entities\Customer')->find(1);
-
-        $args = [
-            'uuid' => 'e92d6f69-8dc4-46cd-a9e3-526753a71072',
-            'name' => 'Filip Kirkorov'
-        ];
-         $res = PersonResolve::entityUpdate($entityManager, $args);
-
-        $res = [$args['name'], $res->getName()];
-//$res = $entityManager->getRepository('entities\Customer')->find(1)->getGraphArray();
+//
+//        $args = [
+//            'uuid' => 'e92d6f69-8dc4-46cd-a9e3-526753a71072',
+//            'name' => 'Filip Kirkorov'
+//        ];
+//         $res = PersonResolve::entityUpdate($entityManager, $args);
+//
+//        $res = [$args['name'], $res->getName()];
+$res = $entityManager->getRepository('entities\Customer')->find(1)->getGraphArray();
 
 
  echo('<pre>');

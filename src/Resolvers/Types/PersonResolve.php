@@ -76,12 +76,15 @@ class PersonResolve
 
                         // removing $person tags not contained in the $updatingTags
                         //
-                        $person->getTags()->map(function (Tag $tag) use ($updatingTags, $person) {
+                        $person->getTags()->map(function (Tag $tag) use ($updatingTags, $person, &$isChangedPerson) {
 
                             if (!current(array_filter($updatingTags, function ($updatingTag) use ($tag) {
                                 return $tag->getName() === $updatingTag['name'];
-                            })))
+                            }))) {
                                 $person->getTags()->removeElement($tag);
+                                $isChangedPerson = true;
+
+                            }
 
                         });
 
@@ -98,7 +101,7 @@ class PersonResolve
                                 else
                                     $tagFromDB = TagResolve::entityUpdate($EM, $updatingTag);
 
-                                if (!empty($tagFromDB)) $isChangedPerson = $person->addTag($tagFromDB);
+                                if (!empty($tagFromDB) && $person->addTag($tagFromDB)) $isChangedPerson = true;
 
                             }
                         }
@@ -107,10 +110,13 @@ class PersonResolve
                 }
 
                 //TODO : updating contacts
+                if(!empty($args['contacts'])) {
+
+                }
 
                 if ($isChangedPerson){
 
-                    if ($isChangedPerson) $EM->persist($person);
+                    $EM->persist($person);
 
                     $EM->flush();
                 }

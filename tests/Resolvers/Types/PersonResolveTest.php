@@ -35,7 +35,77 @@ class PersonResolveTest extends TestCase
         $this->assertEquals($args['name'], $res->getName());
     }
 
-    public function testPersonAddOrUpdateTag()
+    public function testPersonAddTag()
+    {
+        $args = [
+            'uuid' => 'e92d6f69-8dc4-46cd-a9e3-526753a71072',
+            'tags' => [
+                [
+                    'name' => 'spirits',
+                    'color' => 'blue'
+                ]
+            ]
+        ];
+        $res = PersonResolve::entityUpdate(self::$EM, $args);
+
+        $res = $res->getTags()->map(function(Tag $tag){
+            return [
+                'name' => $tag->getName(),
+                'color' => $tag->getColor()
+            ];
+        })->toArray();
+
+        $this->assertEquals($args['tags'],$res);
+    }
+    public function testPersonUpdateTag()
+    {
+        $args = [
+            'uuid' => 'e92d6f69-8dc4-46cd-a9e3-526753a71072',
+            'tags' => [
+                [
+                    'name' => 'spirits',
+                    'color' => 'black'
+                ]
+            ]
+        ];
+        $res = PersonResolve::entityUpdate(self::$EM, $args);
+
+        $res = $res->getTags()->map(function(Tag $tag){
+            return [
+                'name' => $tag->getName(),
+                'color' => $tag->getColor()
+            ];
+        })->toArray();
+
+        $this->assertEquals($args['tags'],$res);
+    }
+    public function testPersonAddNewTagUpdateOld()
+    {
+        $args = [
+            'uuid' => 'e92d6f69-8dc4-46cd-a9e3-526753a71072',
+            'tags' => [
+                [
+                    'name' => 'spirits',
+                    'color' => 'blue'
+                ],
+                [
+                    'name' => 'mood',
+                    'color' => 'black'
+                ]
+            ]
+        ];
+        $res = PersonResolve::entityUpdate(self::$EM, $args);
+
+        $res = $res->getTags()->map(function(Tag $tag){
+            return [
+                'name' => $tag->getName(),
+                'color' => $tag->getColor()
+            ];
+        })->toArray();
+
+        $this->assertEquals($args['tags'],$res);
+    }
+    public function testPersonDeleteNewTag()
     {
         $args = [
             'uuid' => 'e92d6f69-8dc4-46cd-a9e3-526753a71072',
