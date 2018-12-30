@@ -43,8 +43,8 @@ return [
         'addTagByIdToCustomer'=> '',
         'addContactToCustomer'=> ContactResolve::updateContact(),
         'deleteTagOfCustomer'=> '',
-        'createCustomer'=> '',
+        'createCustomer'=> CustomerResolve::createCustomer(),
         'updateCustomer'=> '',
-        'deleteCustomer'=> '',
+        'deleteCustomer'=> CustomerResolve::deleteCustomer(),
     ]
 ];

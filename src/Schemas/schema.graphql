@@ -41,6 +41,17 @@ type Query {
   customerById(uuid: String!): customer
 }
 
+input contactInput {
+  uuid: String
+  typeId: Int!
+  value: String!
+}
+
+input tagInput {
+  name: String!
+  color: String
+}
+
 type Mutation {
 
   createTag(name: String!, color: String): tag
@@ -60,8 +71,9 @@ type Mutation {
   addTagByIdToCustomer(uuid: String!, tagId: Int!): customer
   addContactToCustomer(personUuid: String!, contactUuid: String!): customer
   deleteTagOfCustomer(uuid: String!, tagId: Int, tagName: String): customer
-  createCustomer(name: String, discount_card: Int ,tags: [tag], contacts: [contact]!): customer
-  updateCustomer(uuid: String!, name: String, discount_card: Int ,tags: [tag], contacts: [contact]): customer
+
+  createCustomer(name: String, discount_card: Int ,tags: [tagInput], contacts: [contactInput!]!): customer
+  updateCustomer(uuid: String!, name: String, discount_card: Int ,tags: [tagInput], contacts: [contactInput]): customer
   deleteCustomer(uuid: String!): customer
 
 #  create():

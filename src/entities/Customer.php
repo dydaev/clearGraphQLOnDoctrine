@@ -19,7 +19,7 @@ class Customer extends ProtoForGraph
     protected $person;
 
     /**
-     * @Column(type="string")
+     * @Column(type="string", nullable=true)
      */
     protected $discount_card;
 
@@ -51,7 +51,7 @@ class Customer extends ProtoForGraph
     /**
      * @return mixed
      */
-    public function getPerson()
+    public function getPerson(): Person
     {
         return $this->person;
     }
@@ -59,8 +59,9 @@ class Customer extends ProtoForGraph
     /**
      * @param mixed $person
      */
-    public function setPerson($person)
+    public function setPerson(Person $person)
     {
+        $person->setCustomer($this);
         $this->person = $person;
     }
 

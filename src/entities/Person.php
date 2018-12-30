@@ -106,7 +106,7 @@ class Person extends ProtoForGraph
     /**
      * @return Role
      */
-    public function getRoles(): Role
+    public function getRoles()
     {
         return $this->roles;
     }

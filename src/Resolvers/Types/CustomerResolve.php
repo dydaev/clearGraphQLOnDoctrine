@@ -16,27 +16,29 @@ class CustomerResolve
      * $EM : Entity Manager
      * $args : arguments for person and customer entityes (name, discount_card,tags, contacts ...etc)
      */
-    public static function entityNew($EM, $args): \entities\Customer
+    public static function entityNew($EM, $args): Customer
     {
         $customer = new Customer();
 
-        $person = PersonResolve::entityNew($EM, $args);
-        $customer->setPerson($person);
-
         if(!empty($args['discount_card'])) $customer->setDiscount_card($args['discount_card']);
+
+        $person = PersonResolve::entityNew($EM, $args);
+
+        $customer->setPerson($person);
 
         $EM->persist($customer);
 
         $EM->flush();
 
-        return $customer->getGraphArray();
+        return $customer;
     }
 
     /**
-     * $EM : Entity Manager
-     * $args : arguments for person and customer entityes (name, discount_card,tags, contacts ...etc)
+     * @param EntityManager $EM : Entity Manager
+     * @param mixed $args : arguments for person and customer entityes (name, discount_card,tags, contacts ...etc)
+     * @return  Customer | null
      */
-    public static function entityUpdate($EM, $args): \entities\Customer
+    public static function entityUpdate(EntityManager $EM, $args): Customer
     {
         if (!empty($args['uuid'])) {
 
@@ -61,7 +63,44 @@ class CustomerResolve
                 }
 
                 return $customer;
-            } else throw new Error('contact for updating is not found');
+            }// else throw new Error('contact for updating is not found');
+        }
+        return null;
+    }
+
+    /**
+     * @param EntityManager $EM : Entity Manager
+     * @param mixed $args : argument values uuid person
+     * @return  Customer | null
+     */
+    public static function entityDelete(EntityManager $EM, $args): Customer
+    {
+        if (!empty($args['uuid'])) {
+
+            $person = $EM->getRepository('entities\Person')->findOneBy([ 'uuid' => $args['uuid'] ]);
+
+            if (!empty($person)) {
+
+                $customer = $person->getCustomer();
+                $isChangedCustomer= false;
+
+                if(true) {//if need removing other depends
+
+
+                    $isChangedCustomer = true;
+                }
+
+                if ($isChangedCustomer){
+
+                    $EM->remove($customer);
+
+                    $EM->flush();
+
+                    PersonResolve::entityDelete($EM, $args);
+                }
+
+                return $customer;
+            }
         }
         return null;
     }
@@ -69,7 +108,8 @@ class CustomerResolve
     public static function createCustomer(){
         return function($root, $args, $context){
 
-            if (is_array($args['contacts']) && count($args['contacts'] > 0)) {
+            //There must be at least one contact.
+            if (is_array($args['contacts']) && count($args['contacts']) > 0) {
 
                 $EM = $context['EntityManager'];
 
@@ -85,28 +125,12 @@ class CustomerResolve
             if (!empty($args['uuid'])) {
 
                 $EM = $context['EntityManager'];
-                $contact = $EM->getRepository('entities\Customer')->findOneBy([ 'uuid' => $args['uuid']]);
+                $customer = self::entityUpdate($EM, $args);
 
-                if (!empty($contact)) {
+                if (!empty($customer)) {
 
-                    if(!empty($args['value'])) $contact->setValue($args['value']);
-
-                    if(!empty($args['typeId'])) {
-                        $type = $EM->getRepository('entities\ContactType')->find($args['typeId']);
-
-                        if (!empty($type)) $contact->setType($type);
-                    }
-                    if(!empty($args['personUuid'])) {
-                        $person = $EM->getRepository('entities\Person')->findOneBy([ 'uuid' => $args['personUuid']]);
-
-                        if (!empty($person)) $contact->setPerson($person);
-                    }
-
-                    $EM->persist($contact);
-                    $EM->flush();
-
-                    return $contact->getGraphArray();
-                }
+                    return $customer->getGraphArray();
+                } else throw new Error("Can`t update customer, what went wrong");
 
             }
         };}
@@ -114,15 +138,16 @@ class CustomerResolve
     public static function deleteCustomer(){
         return function($root, $args, $context){
             if (!empty($args['uuid'])) {
-                $EM = $context['EntityManager'];
-                $contact = $EM->getRepository('entities\Contact')->findOneBy([ 'uuid' => $args['uuid']]);
 
-                if (!empty($contact)) {
-                    $EM->remove($contact);
-                    $EM->flush();
-                    return $contact->getGraphArray();
-                }
-            }
+                $EM = $context['EntityManager'];
+                $customer = CustomerResolve::entityDelete($EM, $args);
+
+                if (!empty($customer)) {
+
+                    return $customer->getGraphArray();
+
+                } else throw new Error("Can`t find customer for deleting");
+            } else throw new Error("Need paste uuid for removing customer");
         };}
 
     public static function getCustomer(){

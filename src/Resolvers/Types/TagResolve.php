@@ -15,16 +15,15 @@ class TagResolve{
         
         $tag = $EM->getRepository('entities\Tag')->findOneBy([ 'name' => $args['name'] ]);
 
-        if (empty($tag)) {
+        if (empty($tag)) $tag = new Tag();
 
-            $tag = new Tag();
-            if(!empty($args['name'])) $tag->setName($args['name']);
+        if(!empty($args['name'])) $tag->setName($args['name']);
             
-            if(!empty($args['color'])) $tag->setColor($args['color']);
+        if(!empty($args['color'])) $tag->setColor($args['color']);
             
-            $EM->persist($tag);
-            $EM->flush();
-        }
+        $EM->persist($tag);
+        $EM->flush();
+
             
         return $tag;
     }

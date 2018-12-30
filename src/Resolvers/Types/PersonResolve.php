@@ -13,31 +13,48 @@ use \entities\Customer;
 class PersonResolve
 {
     /**
-     *  @params $EM object Entity Manager
-     *  @params $args array arguments for person(name,contacts,tags...etc)
-     *  @return Person entity
+     * @param EntityManager $EM
+     * @param mixed $args array arguments for person(name,contacts,tags...etc)
+     * @return Person entity
      */
-    public static function entityNew($EM, $args): \entities\Person
+    public static function entityNew(EntityManager $EM, $args): Person
     {
       $person = new Person();
 
-      if(!empty($args['name'])) $person->setName();
+      if(!empty($args['name'])) $person->setName($args['name']);
 
-      if (is_array($args['contacts']) && count($args['contacts'] > 0)) {
+      if (!empty($args['contacts']) && is_array($args['contacts']) && count($args['contacts']) > 0) {
+
         foreach ($args['contacts'] as $contact) {
 
-            $newContact = ContactResolve::entityNew($EM, $contact);
+            if (empty($contact['uuid']))
 
-            $person->addContact($newContact);
+                $contactForPerson = ContactResolve::entityNew($EM, $contact);
+            else
+                $contactForPerson = ContactResolve::entityUpdate($EM, $contact);
+
+            if(!empty($contactForPerson)) {
+
+                $person->addContact($contactForPerson);
+                $EM->persist($person);
+
+            } else throw new Error('contact is empty and did not add to person');
+
         }
       }
 
-      if (is_array($args['tags']) && count($args['tags'] > 0)) {
+      if (!empty($args['tags']) && is_array($args['tags']) && count($args['tags']) > 0) {
           foreach ($args['tags'] as $tag) {
-            
-              $newTag = TagResolve::entityNew($EM, $tag);
-              
-              $person->addTag($newTag);
+
+              $tag = TagResolve::entityNew($EM, $tag);
+
+              if (!empty($tag)) {
+
+                  $person->addTag($tag);
+                  $EM->persist($person);
+
+              } else throw new Error('tag is empty and did not add to person');
+
           }
       }
 
@@ -47,10 +64,11 @@ class PersonResolve
       return $person;
   }
     /**
-     * $EM : Entity Manager
-     * $args : arguments for person entityes (name, tags, contacts ...etc)
+     *@param EntityManager $EM
+     *@param mixed $args : arguments for person entityes (name, tags, contacts ...etc)
+     *@return Person | null
      */
-    public static function entityUpdate($EM, $args): \entities\Person
+    public static function entityUpdate(EntityManager $EM, $args): Person
     {
         if (!empty($args['uuid'])) {
 
@@ -167,6 +185,25 @@ class PersonResolve
             }// else throw new Error('contact for updating is not found');
         }
         return null;
+    }
+
+        /**
+     *@param EntityManager $EM
+     *@param mixed $args : arguments for person entityes (name, tags, contacts ...etc)
+     *@return Person | null
+     */
+    public static function entityDelete(EntityManager $EM, $args): Person
+    {
+        if(!empty($args['uuid'])) {
+            $person = $EM->getRepository('entities\Person')->findOneBy([ 'uuid' => $args['uuid'] ]);
+
+            if (!empty($person)) {
+                $EM->remove($person);
+                $EM->flush();
+
+                return $person;
+            }
+        }
     }
 
 }
