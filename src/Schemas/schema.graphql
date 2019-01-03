@@ -4,6 +4,16 @@ type tag {
   color: String
 }
 
+type token {
+  token: String
+  life_time: String
+}
+
+type access {
+  path: String!
+  rights: Int!
+}
+
 type contactsType {
   id: Int
   type: String
@@ -13,7 +23,8 @@ type contactsType {
 
 type contact {
   uuid: String
-  type: contactsType
+  type: String
+  typeParams: contactsType
   value: String
 }
 
@@ -23,6 +34,14 @@ type customer {
   discount_card: Int
   tags: [tag]
   contacts: [contact]
+}
+
+type user {
+  uuid: String
+  login: String
+  tags: [tag]
+  contacts: [contact]
+  access_list: [access]
 }
 
 type Query {
@@ -39,6 +58,12 @@ type Query {
   allCustomers: [customer]
   countOfCustomers: Int
   customerById(uuid: String!): customer
+
+  allUsers: [user]
+  countOfUsers: Int
+  userById(uuid: String!): user
+  authorization(login: String!, password: String!): token
+  reauthorization: token
 }
 
 input contactInput {
@@ -75,6 +100,11 @@ type Mutation {
   createCustomer(name: String, discount_card: Int ,tags: [tagInput], contacts: [contactInput!]!): customer
   updateCustomer(uuid: String!, name: String, discount_card: Int ,tags: [tagInput], contacts: [contactInput]): customer
   deleteCustomer(uuid: String!): customer
+
+  addContactToUser(personUuid: String!, contactUuid: String!): user
+  createUser(name: String, login: String!, password: String!, tags: [tagInput], contacts: [contactInput!]!): user
+  updateUser(uuid: String!, name: String, login: String ,tags: [tagInput], contacts: [contactInput]): user
+  deleteUser(uuid: String!): user
 
 #  create():
 #  update():

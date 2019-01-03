@@ -40,11 +40,16 @@ echo('</pre>');
 //         $res = PersonResolve::entityUpdate($entityManager, $args);
 //
 //        $res = [$args['name'], $res->getName()];
-$res = $entityManager->getRepository('entities\Customer')->find(1)->getGraphArray();
+$res = $entityManager->getRepository('entities\Person')->findOneBy(['uuid' => '1b557f5a-95a2-46a0-8d95-aa4f9f26f457'])->getCustomer()->getGraphArray();
 
+$right = [
+    1 => ['contacts/*/type/facebook', 3]
+];
+
+
+$res = \Utils\Utils::checkRights($res, $right, 3, true);
 
  echo('<pre>');
-
  print_r($res);
 echo('</pre>');
 /*
@@ -61,15 +66,6 @@ echo('</pre>');
  $entityManager->persist($contact);
 $entityManager->flush();*/
 
-//Головко в 16-20
-//Чавдар-38б
-//
-//1порт патчкорд один висит и синяя СФП
-//
-//
-//Свитч 12 обычная
-
-
 // $pers->addContact($contact);
 
 //$entityManager->persist($pers);
@@ -77,11 +73,11 @@ $entityManager->flush();*/
 // $res = array_map(function($pers){
 //     return $pers->getPerson()->getName();
 // }, $res);
-echo('<pre>');
-// print_r(ContactsType::getContactsType($contT));
-//  var_dump($res->getArray());
-  print_r(array_map(function($contact){return $contact->getGraphArray();},$res));
-echo('</pre>');
+//echo('<pre>');
+//// print_r(ContactsType::getContactsType($contT));
+////  var_dump($res->getArray());
+//  print_r(array_map(function($contact){return $contact->getGraphArray();},$res));
+//echo('</pre>');
 //
 //foreach ($pers as $per) {
 //    echo($per->getName());

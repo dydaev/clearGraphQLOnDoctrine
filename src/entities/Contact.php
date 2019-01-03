@@ -13,7 +13,7 @@ class Contact extends ProtoForGraph
      * @Column(type="integer")
      * @GeneratedValue(strategy="AUTO")
      */
-    protected $id;
+    private $id;
 
     /**
      * @Column(type="string", length=36, unique=true)
@@ -24,7 +24,7 @@ class Contact extends ProtoForGraph
      * @ManyToOne(targetEntity="Person", inversedBy="contacts")
      * @JoinColumn(name="person_id", referencedColumnName="id")
      */
-    protected $person;
+    private $person;
 
     /**
      * @ManyToOne (targetEntity="ContactType")
@@ -37,6 +37,8 @@ class Contact extends ProtoForGraph
      */
     protected $value;
 
+    protected $typeParams;
+
     public function __construct()
     {
          $this->uuid = Uuid::uuid4();
@@ -48,11 +50,10 @@ class Contact extends ProtoForGraph
     public function initialRenamedArray()
     {
         $this->renamedKeys = [
-            'person' => null,
-            'id' => null,
+            'type' => $this->type->getType(),
             'uuid' => function(){return ['uuid' => $this->getUUID()];},
             'value' => $this->value,
-            'type' => $this->type->getGraphArray()
+            'typeParams' => $this->type->getGraphArray()
         ];
     }
 

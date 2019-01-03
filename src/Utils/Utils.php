@@ -38,10 +38,11 @@ class Utils
      * @param $incomingObject  array ...[ 'User' => [ 'phone' => '345', 'email' => 'aa@aa.net']]
      * @param $accessRights  array with paths and rights ...[ ['User/phone', 3], ['User/email', 0] ]
      * @param $mask  number rights ... 3
+     * @param  $deep boolean, default clearing only self and daughters object, if true - clean up at self level
      * @return array  clear incoming object ...[ 'User' => [ 'phone' => '345']]
      */
-  static function checkRights($incomingObject, $accessRights, $mask) {
-      function recurse($entitiRes, $access, $acceptMask) {
+  static function checkRights($incomingObject, $accessRights, $mask, $deep = false) {
+      function recurse($entitiRes, $access, $acceptMask, $deep) {
 
           $entitiPath = explode('/', $access[0]);
           $entitiCurrentFolder = array_shift($entitiPath);
@@ -52,15 +53,22 @@ class Utils
               $res = [];
               foreach ($entitiRes as $key =>$subEntitiRes) {
 
-                  if ( $entitiCurrentFolder ===  $key) {
+                  if ( $entitiCurrentFolder ===  $key || $entitiCurrentFolder === '*') {
                       $newAccess = [ implode('/',$entitiPath)  , $privilege];
 
-                      $returnedData = recurse($subEntitiRes, $newAccess, $acceptMask);
+                      if ($deep && count($entitiPath) == 1 && (in_array($entitiPath[count($entitiPath) -1], $entitiRes ))){
+                          $returnedData = $entitiRes;
+                          $res = $returnedData ;
+                      } else {
 
-                      if ($returnedData) $res[$key] = $returnedData ;
+                          $returnedData = recurse($subEntitiRes, $newAccess, $acceptMask, $deep);
+                          if ($returnedData) $res[$key] = $returnedData ;
+                      }
+
+
                   } else {
                       //разкоментировать если политика "разрешено все что не запрещено"
-                      if (!array_key_exists($key, $res)) $res[$key] = $subEntitiRes;
+                      //if (!array_key_exists($key, $res)) $res[$key] = $subEntitiRes;
                   }
               }
 
@@ -72,7 +80,8 @@ class Utils
 
           } else if (count($entitiPath) === 0) {
               //точка назначения пути, проверка билетов)
-              return (($privilege & $acceptMask) === $privilege) ? $entitiRes : null;
+              return (($entitiCurrentFolder == '*' || $entitiCurrentFolder == $entitiRes)
+                  && (($privilege & $acceptMask) === $privilege)) ? $entitiRes : null;
 
           } else {
               //нет такого пути
@@ -82,7 +91,7 @@ class Utils
 
       $result = [];
       foreach ( $accessRights as $key => $access) {
-          $preRes = recurse($incomingObject, $access, $mask);
+          $preRes = recurse($incomingObject, $access, $mask, $deep);
           $result = array_merge_recursive($result, is_array($preRes) ? $preRes : []);
       }
       return $result;

@@ -38,7 +38,7 @@ class ContactType extends ProtoForGraph
     /**
      * @return mixed
      */
-    public function getType()
+    public function getType(): String
     {
         return $this->type;
     }

@@ -7,6 +7,7 @@ use Resolvers\Types\TagResolve;
 use Resolvers\Types\CustomerResolve;
 use Resolvers\Types\ContactsTypeResolve;
 use Resolvers\Types\ContactResolve;
+use Resolvers\Types\UserResolve;
 
 
 return [
@@ -24,6 +25,10 @@ return [
         'allCustomers' => CustomerResolve::getAllCustomers(),
         'countOfCustomers' => CustomerResolve::getCountOfCustomers(),
         'customerById' => CustomerResolve::getCustomer(),
+
+        'allUsers' => UserResolve::getAllUsers(),
+        'countOfUsers' => UserResolve::getCountOfUsers(),
+        'userById' => UserResolve::getUser(),
     ],
     'Mutation' => [
         'createTag'=> TagResolve::createTag(),
@@ -41,10 +46,15 @@ return [
 
         'addNewTagToCustomer'=> '',
         'addTagByIdToCustomer'=> '',
-        'addContactToCustomer'=> ContactResolve::updateContact(),
         'deleteTagOfCustomer'=> '',
+        'addContactToCustomer'=> ContactResolve::updateContact(),
         'createCustomer'=> CustomerResolve::createCustomer(),
         'updateCustomer'=> CustomerResolve::updateCustomer(),
         'deleteCustomer'=> CustomerResolve::deleteCustomer(),
+
+        'addContactToUser'=> ContactResolve::updateContact(),
+        'createUser'=> UserResolve::createUser(),
+        'updateUser'=> UserResolve::updateUser(),
+        'deleteUser'=> UserResolve::deleteUser(),
     ]
 ];

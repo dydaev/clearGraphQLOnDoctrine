@@ -109,7 +109,7 @@ class CustomerResolve
         return function($root, $args, $context){
 
             //There must be at least one contact.
-            if (is_array($args['contacts']) && count($args['contacts']) > 0) {
+            if (!empty($args['contacts']) && is_array($args['contacts']) && count($args['contacts']) > 0) {
 
                 $EM = $context['EntityManager'];
 

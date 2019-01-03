@@ -19,15 +19,15 @@ $entitiResult = [
 ];
 
 $accessArr = [
-    1 => ['A/E', 2],
+//    1 => ['A/E', 2],
     4 => ['A/D', 2],
     3 => ['V/X/W', 2],
     2 => ['B/G/J', 0   ],
-    5 => ['User/phone', 3],
-    6 => ['User/email', 0]
+//    5 => ['User/phone', 3],
+//    6 => ['User', 0]
 ];
 
-$result = Utils::checkRights($entitiResult, $accessArr, 3);
+$result = Utils::checkRights($entitiResult, $accessArr, 3, true);
 
 echo '<pre>';
 print_r($result);
