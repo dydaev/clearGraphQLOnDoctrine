@@ -63,7 +63,7 @@ type Query {
   countOfUsers: Int
   userById(uuid: String!): user
   authorization(login: String!, password: String!): token
-  reauthorization: token
+  update_token(token: String!): token
 }
 
 input contactInput {
@@ -102,7 +102,7 @@ type Mutation {
   deleteCustomer(uuid: String!): customer
 
   addContactToUser(personUuid: String!, contactUuid: String!): user
-  createUser(name: String, login: String!, password: String!, tags: [tagInput], contacts: [contactInput!]!): user
+  createUser(name: String, login: String!, password: String!, tags: [tagInput]): user
   updateUser(uuid: String!, name: String, login: String ,tags: [tagInput], contacts: [contactInput]): user
   deleteUser(uuid: String!): user
 

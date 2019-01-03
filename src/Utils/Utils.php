@@ -2,6 +2,9 @@
 
 namespace Utils;
 
+session_start();
+date_default_timezone_set('UTC');
+
 class Utils
 {
   /**
@@ -95,5 +98,40 @@ class Utils
           $result = array_merge_recursive($result, is_array($preRes) ? $preRes : []);
       }
       return $result;
+  }
+
+  public static function checkToken(String $token) {
+      if (!empty($token)) {
+          if (isset($_SESSION['life'])) {
+              if (!empty($_SESSION['life']['die_time']) && $_SESSION['life']['die_time'] > date('U')) {
+                  if ($_SESSION['life']['key_of_life'] === $token) return true;
+              }
+              unset($_SESSION['life']);
+          }
+      }
+
+      return false;
+  }
+
+  public static function getToken() {
+    $hours = 0;
+    $minutes = 5;
+    $seconds = 0;
+
+    $nowPlusLifeTime = mktime(
+        date("H") + $hours,
+        date("i") + $minutes,
+        date("s") + $seconds,
+        date("m"),
+        date("d"),
+        date("Y")
+    );
+
+    $token = bin2hex(random_bytes(256));
+
+    return [
+        'token' => $token,
+        'die_time' => $nowPlusLifeTime
+    ];
   }
 }

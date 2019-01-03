@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Resolvers\Types;
 
+session_start();
+
 require_once __DIR__.'/../../../vendor/autoload.php';
 
 use entities\User;
@@ -11,6 +13,7 @@ use \Doctrine\ORM\EntityManager;
 use \entities\Person;
 use \entities\Contact;
 use \entities\Customer;
+use Utils\Utils;
 
 class UserResolve
 {
@@ -119,13 +122,18 @@ class UserResolve
 
             if(!empty($args['login'])) {
                 if(!empty($args['password'])){
-                    if (!empty($args['contacts']) && is_array($args['contacts']) && count($args['contacts']) > 0) {
+//                    if (!empty($args['contacts']) && is_array($args['contacts']) && count($args['contacts']) > 0) {
 
                         $EM = $context['EntityManager'];
 
-                        return self::entityNew($EM, $args)->getGraphArray();
+                        $user = $EM->getRepository('entities\User')->findOneBy([ 'login' => $args['login'] ]);
 
-                    } else throw new Error("Can`t create user, need add contact");
+                        if (empty($user))
+                            return self::entityNew($EM, $args)->getGraphArray();
+                        else
+                            throw new Error("Can`t create user, this login is used");
+
+//                    } else throw new Error("Can`t create user, need add contact");
 
                 } else throw new Error("Can`t create user without password");
 
@@ -185,23 +193,69 @@ class UserResolve
 
     public static function authorization(){
         return function($root, $args, $context){
-            $EM = $context['EntityManager'];
 
+            $EM = $context['EntityManager'];
             if(!empty($args['login']) && !empty($args['password'])) {
 
-                $res = $EM->getRepository('entities\User')->findAll();
-                return ;//token
+                $user = $EM->getRepository('entities\User')->findOneBy([ 'login' => $args['login'] ]);
+
+                if (!empty($user)) {
+                    if ($user->checkPassword($args['password']))
+                    {
+                        $tokenArr = Utils::getToken();
+
+                        $_SESSION['life'] = [
+                            'user_login' => $user->getLogin(),
+                            'uusr' => $user->getPerson()->getUUID(),
+                            'key_of_life' => $tokenArr['token'],
+                            'die_time' => $tokenArr['die_time']
+                        ];
+
+                        return [
+                            'token' => $tokenArr['token'],
+                            'life_time' => date(DATE_ATOM ,$tokenArr['die_time'])
+                        ];
+                    }
+                }
+
+                throw new Error("Login or password is wrong");
 
             } else throw new Error("Login or password is empty");
     };}
 
-    public static function reauthorization(){
+    public static function update_token(){
         return function($root, $args, $context){
             $EM = $context['EntityManager'];
+            if (!empty($args['token'])) {
+//                return[
+//                    'token' => $_SESSION['life']['die_time'],
+//                    'life_time' =>  date('U')
+//                ];
+                if (Utils::checkToken($args['token'])) {
 
-            $res = $EM->getRepository('entities\User')->findAll();
+                    $person = $EM->getRepository('entities\Person')->findOneBy([ 'uuid' => $_SESSION['life']['uusr'] ]);
 
-            return ;//token
+                    if (!empty($person)) {
+
+                        $newToken = Utils::getToken();
+
+                        $_SESSION['life'] = [
+                            'user_login' => $person->getUser()->getLogin(),
+                            'uusr' => $person->getUUID(),
+                            'key_of_life' => $newToken['token'],
+                            'die_time' => $newToken['die_time']
+                        ];
+
+                        return [
+                            'token' => $newToken['token'],
+                            'life_time' => date(DATE_ATOM ,$newToken['die_time'])
+                        ];
+                    }
+                }
+
+            }
+
+            return null;
     };}
 
     public static function getCountOfUsers(){

@@ -3,6 +3,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__.'/../config/bootstrap.php';
 require_once __DIR__.'/../config/DoctrineManager.php';
 
+session_start();
 
 use Siler\Graphql;
 use Siler\Http\Request;
@@ -11,6 +12,8 @@ use DoctrineManager;
 
 Response\header('Access-Control-Allow-Origin', '*');
 Response\header('Access-Control-Allow-Headers', 'content-type');
+
+date_default_timezone_set('UTC');
 
 $context = [
     'EntityManager' => DoctrineManager::getEntityManager()

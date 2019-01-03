@@ -39,7 +39,7 @@ class User extends ProtoForGraph
     /**
      * @return mixed
      */
-    public function getPerson()
+    public function getPerson(): Person
     {
         return $this->person;
     }
@@ -73,7 +73,7 @@ class User extends ProtoForGraph
      */
     public function checkPassword($checkPass)
     {
-        return $this->password === md5($checkPass);
+        return password_verify($checkPass, $this->password);
     }
 
     /**
@@ -81,7 +81,11 @@ class User extends ProtoForGraph
      */
     public function setPassword($password)
     {
-        $this->password = md5($password);
+        $options = [
+            'cost' => 12,
+        ];
+
+        $this->password = password_hash($password, PASSWORD_BCRYPT, $options);
     }
 
 }

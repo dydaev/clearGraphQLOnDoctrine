@@ -29,6 +29,8 @@ return [
         'allUsers' => UserResolve::getAllUsers(),
         'countOfUsers' => UserResolve::getCountOfUsers(),
         'userById' => UserResolve::getUser(),
+        'authorization' => UserResolve::authorization(),
+        'update_token' => UserResolve::update_token()
     ],
     'Mutation' => [
         'createTag'=> TagResolve::createTag(),
