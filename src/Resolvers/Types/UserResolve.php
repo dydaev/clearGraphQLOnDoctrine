@@ -119,6 +119,7 @@ class UserResolve
 
     public static function createUser(){
         return function($root, $args, $context){
+            if (empty($context['user'])) throw new Error("no authorized");
 
             if(!empty($args['login'])) {
                 if(!empty($args['password'])){
@@ -142,6 +143,8 @@ class UserResolve
 
     public static function updateUser(){
         return function($root, $args, $context){
+            if (empty($context['user'])) throw new Error("no authorized");
+
             if (!empty($args['uuid'])) {
 
                 $EM = $context['EntityManager'];
@@ -157,6 +160,8 @@ class UserResolve
 
     public static function deleteUser(){
         return function($root, $args, $context){
+            if (empty($context['user'])) throw new Error("no authorized");
+
             if (!empty($args['uuid'])) {
 
                 $EM = $context['EntityManager'];
@@ -172,6 +177,7 @@ class UserResolve
 
     public static function getUser(){
         return function($root, $args, $context){
+            if (empty($context['user'])) throw new Error("no authorized");
 
             $EM = $context['EntityManager'];
 
@@ -184,6 +190,8 @@ class UserResolve
 
     public static function getAllUsers(){
         return function($root, $args, $context){
+            if (empty($context['user'])) throw new Error("no authorized");
+
             $EM = $context['EntityManager'];
 
             $res = $EM->getRepository('entities\User')->findAll();
@@ -225,6 +233,8 @@ class UserResolve
 
     public static function update_token(){
         return function($root, $args, $context){
+            if (empty($context['user'])) throw new Error("no authorized");
+
             $EM = $context['EntityManager'];
             if (!empty($args['token'])) {
 //                return[
@@ -260,6 +270,7 @@ class UserResolve
 
     public static function getCountOfUsers(){
         return function($root, $args, $context){
+            if (empty($context['user'])) throw new Error("no authorized");
 
         $res = self::getAllUsers();
         return !empty($res) ? count($res($root, $args, $context)) : 0 ;

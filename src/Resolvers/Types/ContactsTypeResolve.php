@@ -8,6 +8,8 @@ class ContactsTypeResolve
 {
     public static function createType(){
         return function($root, $args, $context){
+            if (empty($context['user'])) throw new Error("no authorized");
+
             if (!empty($args['type'])) {//type: String!, regex: String, prefix: String
 
                 $type = new ContactType();
@@ -27,6 +29,8 @@ class ContactsTypeResolve
 
     public static function updateType(){
         return function($root, $args, $context){
+            if (empty($context['user'])) throw new Error("no authorized");
+
             if (!empty($args['id'])) {
 
                 $EM = $context['EntityManager'];
@@ -49,6 +53,8 @@ class ContactsTypeResolve
 
     public static function deleteType(){
         return function($root, $args, $context){
+            if (empty($context['user'])) throw new Error("no authorized");
+
             if (!empty($args['id'])) {
                 $EM = $context['EntityManager'];
                 $type = $EM->getRepository('entities\ContactType')->find($args['id']);
@@ -64,6 +70,8 @@ class ContactsTypeResolve
     public static function getContactsTypeById(){
         return function($root, $args, $context)
     {
+        if (empty($context['user'])) throw new Error("no authorized");
+
         $EM = $context['EntityManager'];
 
         $contactsType = $EM->getRepository('entities\ContactType')->find($args['id']);
@@ -76,6 +84,8 @@ class ContactsTypeResolve
     public static function getAllContactsType(){
         return function($root, $args, $context)
     {
+        if (empty($context['user'])) throw new Error("no authorized");
+
         $EM = $context['EntityManager'];
 
         $contactsType = $EM->getRepository('entities\ContactType')->findAll();

@@ -66,6 +66,8 @@ class TagResolve{
 
     public static function createTag(){
         return function($root, $args, $context){
+            if (empty($context['user'])) throw new Error("no authorized");
+
             if (!empty($args['name'])) {
 
                 $EM = $context['EntityManager'];
@@ -76,6 +78,8 @@ class TagResolve{
 
     public static function updateTag(){
         return function($root, $args, $context){
+            if (empty($context['user'])) throw new Error("no authorized");
+
             if (!empty($args['id'])) {
 
                 $EM = $context['EntityManager'];
@@ -85,6 +89,8 @@ class TagResolve{
 
     public static function deleteTag(){
         return function($root, $args, $context){
+            if (empty($context['user'])) throw new Error("no authorized");
+
             if (!empty($args['id'])) {
                 $EM = $context['EntityManager'];
                 $tag = $EM->getRepository('entities\Tag')->find($args['id']);
@@ -99,12 +105,16 @@ class TagResolve{
 
     public static function getCountOfTags(){
         return function($root, $args, $context) {
+            if (empty($context['user'])) throw new Error("no authorized");
+
             $tags = self::getAllTags();
             return !empty($tags) ? count($tags($root, $args, $context)) : 0;
         };}
 
     public static function getAllTags(){
         return function($root, $args, $context) {
+            if (empty($context['user'])) throw new Error("no authorized");
+
             $EM = $context['EntityManager'];
 
             $tags = $EM->getRepository('entities\Tag')->findAll();

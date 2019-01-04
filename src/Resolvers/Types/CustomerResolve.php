@@ -107,6 +107,7 @@ class CustomerResolve
 
     public static function createCustomer(){
         return function($root, $args, $context){
+            if (empty($context['user'])) throw new Error("no authorized");
 
             //There must be at least one contact.
             if (!empty($args['contacts']) && is_array($args['contacts']) && count($args['contacts']) > 0) {
@@ -122,6 +123,8 @@ class CustomerResolve
 
     public static function updateCustomer(){
         return function($root, $args, $context){
+            if (empty($context['user'])) throw new Error("no authorized");
+
             if (!empty($args['uuid'])) {
 
                 $EM = $context['EntityManager'];
@@ -137,6 +140,8 @@ class CustomerResolve
 
     public static function deleteCustomer(){
         return function($root, $args, $context){
+            if (empty($context['user'])) throw new Error("no authorized");
+
             if (!empty($args['uuid'])) {
 
                 $EM = $context['EntityManager'];
@@ -152,6 +157,7 @@ class CustomerResolve
 
     public static function getCustomer(){
         return function($root, $args, $context){
+            if (empty($context['user'])) throw new Error("no authorized");
 
             $EM = $context['EntityManager'];
 
@@ -164,6 +170,8 @@ class CustomerResolve
 
     public static function getAllCustomers(){
         return function($root, $args, $context){
+            if (empty($context['user'])) throw new Error("no authorized");
+
             $EM = $context['EntityManager'];
 
             $res = $EM->getRepository('entities\Customer')->findAll();
@@ -174,8 +182,9 @@ class CustomerResolve
 
     public static function getCountOfCustomers(){
         return function($root, $args, $context){
+            if (empty($context['user'])) throw new Error("no authorized");
 
-        $res = self::getAllCustomers();
-        return !empty($res) ? count($res($root, $args, $context)) : 0 ;
+            $res = self::getAllCustomers();
+            return !empty($res) ? count($res($root, $args, $context)) : 0 ;
     };}
 }

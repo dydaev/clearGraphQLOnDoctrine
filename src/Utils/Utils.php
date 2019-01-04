@@ -113,6 +113,13 @@ class Utils
       return false;
   }
 
+  public static function getMySelf($token) {
+
+      if (self::checkToken($token) && !empty($_SESSION['life']['user_login'])) return $_SESSION['life']['user_login'];
+
+      return null;
+  }
+
   public static function getToken() {
     $hours = 0;
     $minutes = 5;
@@ -127,7 +134,7 @@ class Utils
         date("Y")
     );
 
-    $token = bin2hex(random_bytes(256));
+    $token = bin2hex(random_bytes(512));
 
     return [
         'token' => $token,

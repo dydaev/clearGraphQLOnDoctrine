@@ -91,6 +91,7 @@ class ContactResolve
 
     public static function createContact(){ //uuid: String!, typeId: Int, value: String
         return function($root, $args, $context){
+            if (empty($context['user'])) throw new Error("no authorized");
                 $EM = $context['EntityManager'];
 
                 return self::entityNew($EM, $args)->getGraphArray();
@@ -99,6 +100,7 @@ class ContactResolve
 
     public static function updateContact(){
         return function($root, $args, $context){
+            if (empty($context['user'])) throw new Error("no authorized");
             if (!empty($args['uuid'])) {
 
                 $EM = $context['EntityManager'];
@@ -110,6 +112,7 @@ class ContactResolve
 
     public static function deleteContact(){
         return function($root, $args, $context){
+            if (empty($context['user'])) throw new Error("no authorized");
             if (!empty($args['uuid'])) {
                 $EM = $context['EntityManager'];
                 $contact = $EM->getRepository('entities\Contact')->findOneBy([ 'uuid' => $args['uuid']]);
@@ -123,8 +126,8 @@ class ContactResolve
         };}
 
     public static function getContact(){
-        return function($root, $args, $context)
-        {
+        return function($root, $args, $context) {
+            if (empty($context['user'])) throw new Error("no authorized");
 
             $EM = $context['EntityManager'];
 
