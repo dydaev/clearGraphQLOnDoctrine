@@ -6,36 +6,50 @@ use \Doctrine\Common\Collections\ArrayCollection as ArrayCollection;
 /**
 * @Entity @Table(name="role")
 */
-class Role
+class Role extends ProtoForGraph
 {
     /**
      * @Id
      * @Column(type="integer")
      * @GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @Column(type="string", unique=true)
      */
-    private $role;
+    protected $name;
 
     /**
      * @Column(type="string", nullable=true)
      */
-    private $description;
+    protected $description;
 
     /**
-     * @ManyToMany(targetEntity="AccessRolesList")
-     * @JoinTable(name="role_access",
+     * @ManyToMany(targetEntity="Rule")
+     * @JoinTable(name="roles_rules",
      *      joinColumns={@JoinColumn(name="role_id", referencedColumnName="id")},
-     *      inverseJoinColumns={@JoinColumn(name="access_id", referencedColumnName="id")}
+     *      inverseJoinColumns={@JoinColumn(name="rule_id", referencedColumnName="id")}
      *      )
      */
-    private $accessList;
+    protected $rulesList;
 
    	public function __construct () {
-        $this->accessList = new ArrayCollection();
+        $this->rulesList = new ArrayCollection();
+    }
+
+    /**
+     * initial rewrite values for ProtoForGraph->getGraphArray()
+     */
+    public function initialRenamedArray()
+    {
+        $this->renamedKeys = [
+            '$rulesList' => function () {
+                return [
+                    'rules' => $this->mapEntityCollectionToGraph($this->getRules()),
+                ];
+            }
+        ];
     }
 
     /**
@@ -47,35 +61,56 @@ class Role
     }
 
     /**
-     * @return mixed
+     * @return String
      */
-    public function getRole()
+    public function getName()
     {
-        return $this->role;
+        return $this->name;
     }
 
     /**
      * @return mixed
      */
-    public function getAccessList()
+    public function getRules()
     {
-        return $this->accessList;
+        return $this->rulesList;
     }
 
     /**
-     * @param mixed $accessList
+     * @param Rule $rule
      */
-    public function setAccessList($accessList)
+    public function addRule(Rule $rule)
     {
-        $this->accessList = $accessList;
+        $this->rulesList->add($rule);
+    }
+
+    public function clearRules()
+    {
+        $this->rulesList->clear();
     }
 
     /**
-     * @param mixed $role
+     * @param Rule $rule
      */
-    public function setRole($role)
+    public function removeAccess(Rule $rule)
     {
-        $this->role = $role;
+        $this->rulesList->removeElement($rule);
+    }
+
+    /**
+     * @param mixed $rulesList
+     */
+    public function setAccessList($rulesList)
+    {
+        $this->rulesList = $rulesList;
+    }
+
+    /**
+     * @param String $name
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
     }
 
     /**

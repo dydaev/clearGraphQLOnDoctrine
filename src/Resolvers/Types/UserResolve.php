@@ -119,7 +119,7 @@ class UserResolve
 
     public static function createUser(){
         return function($root, $args, $context){
-            if (empty($context['user'])) throw new Error("no authorized");
+            //if (empty($context['user'])) throw new Error("no authorized");
 
             if(!empty($args['login'])) {
                 if(!empty($args['password'])){
@@ -132,7 +132,7 @@ class UserResolve
                         if (empty($user))
                             return self::entityNew($EM, $args)->getGraphArray();
                         else
-                            throw new Error("Can`t create user, this login is used");
+                            throw new Error("Can`t create user, the login is used");
 
 //                    } else throw new Error("Can`t create user, need add contact");
 

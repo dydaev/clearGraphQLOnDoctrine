@@ -1,5 +1,9 @@
 <?php
 namespace entities;
+
+use \Doctrine\Common\Collections\ArrayCollection as ArrayCollection;
+use Doctrine\ORM\PersistentCollection;
+
 /**
 * @Entity @Table(name="user")
 */
@@ -27,6 +31,35 @@ class User extends ProtoForGraph
      * @Column(type="string")
      */
     private $password;
+
+    /**
+     * @ManyToMany(targetEntity="Role")
+     * @JoinTable(name="users_roles",
+     *      joinColumns={@JoinColumn(name="user_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@JoinColumn(name="role_id", referencedColumnName="id")}
+     *      )
+     */
+    protected $roles;
+
+    public function __construct () {
+        $this->roles = new ArrayCollection();
+    }
+
+    /**
+     * @return PersistentCollection
+     */
+    public function getRoles(): PersistentCollection
+    {
+        return $this->roles;
+    }
+
+    /**
+     * @param mixed $roles
+     */
+    public function setRoles($roles)
+    {
+        $this->roles = $roles;
+    }
 
     /**
      * @return mixed

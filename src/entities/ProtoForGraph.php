@@ -7,7 +7,7 @@ use Doctrine\ORM\PersistentCollection;
 class ProtoForGraph {
     protected $renamedKeys = [];
 
-    public function mapEntityCollectionTpGraph(PersistentCollection $entCollection) {
+    public function mapEntityCollectionToGraph(PersistentCollection $entCollection) {
         return $entCollection->map(
             function($subEnt){
                 return $subEnt->getGraphArray();

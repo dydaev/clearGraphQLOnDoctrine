@@ -32,8 +32,8 @@ class Customer extends ProtoForGraph
             'person' => function () {
                 return [
                     'uuid' => $this->person->getUUID(),
-                    'contacts' => $this->mapEntityCollectionTpGraph($this->person->getContacts()),
-                    'tags' => $this->mapEntityCollectionTpGraph($this->person->getTags()),
+                    'contacts' => $this->mapEntityCollectionToGraph($this->person->getContacts()),
+                    'tags' => $this->mapEntityCollectionToGraph($this->person->getTags()),
                     'name' => $this->person->getName()
                 ];
             }

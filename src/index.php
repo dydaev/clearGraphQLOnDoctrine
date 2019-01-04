@@ -24,8 +24,8 @@ $context = [
 ];
 
 if (Request\method_is('post')) {
+
     $schema = include __DIR__.'/schema.php';
     Graphql\init($schema, null, $context);
-}
 
-//port: 9090
+}

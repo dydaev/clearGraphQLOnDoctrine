@@ -2,9 +2,9 @@
 namespace entities;
 
 /**
-* @Entity @Table(name="accessRoleList")
+* @Entity @Table(name="Rule")
 */
-class AccessRolesList
+class Rule
 {
     /**
      * @Id
@@ -16,7 +16,7 @@ class AccessRolesList
     /**
      * @Column(type="string")
      */
-    private $accessRightPath;
+    private $rulePath;
 
     /**
     * @Column(type="integer", length=3)
@@ -29,7 +29,7 @@ class AccessRolesList
     private $description;
 
     /**
-     * @return mixed
+     * @return integer
      */
     public function getId()
     {
@@ -37,49 +37,49 @@ class AccessRolesList
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getAccessRightPath()
+    public function getRulePath(): String
     {
-        return $this->accessRightPath;
+        return $this->rulePath;
     }
 
     /**
-     * @param mixed $accessRightPath
+     * @param string $rulePath
      */
-    public function setAccessRightPath($accessRightPath)
+    public function setRulePath(String $rulePath)
     {
-        $this->accessRightPath = $accessRightPath;
+        $this->rulePath = $rulePath;
     }
 
     /**
-     * @return mixed
+     * @return integer
      */
-    public function getPermission()
+    public function getPermission(): Int
     {
         return $this->permission;
     }
 
     /**
-     * @param mixed $permission
+     * @param integer $permission
      */
-    public function setPermission($permission)
+    public function setPermission(Int $permission)
     {
         $this->permission = $permission;
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getDescription()
+    public function getDescription(): String
     {
         return $this->description;
     }
 
     /**
-     * @param mixed $description
+     * @param string $description
      */
-    public function setDescription($description)
+    public function setDescription(String $description)
     {
         $this->description = $description;
     }

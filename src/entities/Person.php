@@ -52,20 +52,10 @@ class Person extends ProtoForGraph
      */
     protected $tags;
 
-     /**
-     * @ManyToMany(targetEntity="Role")
-     * @JoinTable(name="persons_role",
-     *      joinColumns={@JoinColumn(name="person_id", referencedColumnName="id")},
-     *      inverseJoinColumns={@JoinColumn(name="role_id", referencedColumnName="id")}
-     *      )
-     */
-    protected $roles;
-
 	public function __construct () {
 	    $this->uuid = Uuid::uuid4();
         $this->contacts = new ArrayCollection();
         $this->tags = new ArrayCollection();
-        $this->roles = new ArrayCollection();
     }
 
     /**
@@ -102,22 +92,6 @@ class Person extends ProtoForGraph
 //    {
 //        $this->uuid = $uid;
 //    }
-
-    /**
-     * @return Role
-     */
-    public function getRoles()
-    {
-        return $this->roles;
-    }
-
-    /**
-     * @param mixed $roles
-     */
-    public function setRoles($roles)
-    {
-        $this->roles = $roles;
-    }
 
     /**
      * @return integer

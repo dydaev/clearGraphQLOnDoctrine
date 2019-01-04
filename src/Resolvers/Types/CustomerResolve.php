@@ -176,7 +176,7 @@ class CustomerResolve
 
             $res = $EM->getRepository('entities\Customer')->findAll();
 
-            return array_map(function($contact){return $contact->getGraphArray();},$res) ;
+            return array_map(function($customer){return $customer->getGraphArray();},$res) ;
     };}
 
 
