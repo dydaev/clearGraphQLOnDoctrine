@@ -2,9 +2,9 @@
 namespace entities;
 
 /**
-* @Entity @Table(name="Rule")
+* @Entity @Table(name="rule")
 */
-class Rule
+class Rule extends ProtoForGraph
 {
     /**
      * @Id

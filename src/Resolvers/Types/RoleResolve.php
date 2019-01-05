@@ -120,13 +120,13 @@ class RoleResolve extends AbstractResolve
 
                 $EM = self::getEntityManager($context);
 
-                $role = $EM->getRepository('entities\Role')->findOneBy([ '' => $args['name'] ]);
+                $role = $EM->getRepository('entities\Role')->findOneBy([ 'name' => $args['name'] ]);
 
                 if (!empty($role)) return $role->getGraphArray();
 
-                else throw new Error("user not fined");
+                else throw new Error("role not found");
 
-            } else throw new Error("user name is empty");
+            } else throw new Error("role name not specified");
         };
     }
 
@@ -160,7 +160,7 @@ class RoleResolve extends AbstractResolve
 
                 throw new Error("role did not create");
 
-            } else throw new Error("role must be have name");
+            } else throw new Error("role name not specified");
 
         };
     }
@@ -222,7 +222,7 @@ class RoleResolve extends AbstractResolve
 
                     return $res->getGraphArray();
                 }
-                else throw new Error("role is not fined");
+                else throw new Error("role is not found");
             } else throw new Error("no roleId to removing");
         };
     }
