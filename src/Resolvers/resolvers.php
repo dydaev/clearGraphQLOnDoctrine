@@ -22,13 +22,13 @@ return [
 
         'contactById' => ContactResolve::getContact(),
 
-        'allCustomers' => CustomerResolve::getAllCustomers(),
-        'countOfCustomers' => CustomerResolve::getCountOfCustomers(),
-        'customerById' => CustomerResolve::getCustomer(),
+        'allCustomers' => CustomerResolve::getAll(),
+        'countOfCustomers' => CustomerResolve::getCount(),
+        'customerById' => CustomerResolve::getCustomerByUuid(),
 
-        'allUsers' => UserResolve::getAllUsers(),
-        'countOfUsers' => UserResolve::getCountOfUsers(),
-        'userById' => UserResolve::getUser(),
+        'allUsers' => UserResolve::getAll(),
+        'countOfUsers' => UserResolve::getCount(),
+        'userById' => UserResolve::getUserByUuid(),
         'authorization' => UserResolve::authorization(),
         'update_token' => UserResolve::update_token()
     ],
@@ -50,13 +50,13 @@ return [
         'addTagByIdToCustomer'=> '',
         'deleteTagOfCustomer'=> '',
         'addContactToCustomer'=> ContactResolve::updateContact(),
-        'createCustomer'=> CustomerResolve::createCustomer(),
-        'updateCustomer'=> CustomerResolve::updateCustomer(),
-        'deleteCustomer'=> CustomerResolve::deleteCustomer(),
+        'createCustomer'=> CustomerResolve::create(),
+        'updateCustomer'=> CustomerResolve::update(),
+        'deleteCustomer'=> CustomerResolve::delete(),
 
         'addContactToUser'=> ContactResolve::updateContact(),
-        'createUser'=> UserResolve::createUser(),
-        'updateUser'=> UserResolve::updateUser(),
-        'deleteUser'=> UserResolve::deleteUser(),
+        'createUser'=> UserResolve::create(),
+        'updateUser'=> UserResolve::update(),
+        'deleteUser'=> UserResolve::delete(),
     ]
 ];

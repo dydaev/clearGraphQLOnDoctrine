@@ -8,16 +8,31 @@
 
 namespace Resolvers\Types;
 
-use Doctrine\Common\Collections\ArrayCollection;
+use GraphQL\Error\Error;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\PersistentCollection;
 
 abstract class AbstractResolve
 {
 
-//    abstract public static function entityNew(EntityManager $EM, ...);
+//    abstract public static function entityNew(...$params);
 //    abstract public static function entityUpdate(EntityManager $EM, ...);
 //    abstract public static function entityDelete(...$args);
+
+
+    abstract public static function getAll();
+    abstract public static function create();
+    abstract public static function update();
+    abstract public static function delete();
+
+
+    public static function getCount(){
+        return function($root, $args, $context){
+            if (empty($context['user'])) throw new Error("no authorized");
+
+            $res = self::getAll();
+            return !empty($res) ? count($res($root, $args, $context)) : 0 ;
+    };}
 
     /**
     * @param $context
@@ -50,7 +65,7 @@ abstract class AbstractResolve
 
         $newObjectsId = array_map(function($newObject){ return $newObject->getId();}, $newObjects);
 
-        $oldObjects->filter(function($oldObject) use ($newObjectsId){
+        $oldObjects->filter(function($oldObject) use ($newObjectsId) {
 
             return in_array($oldObject->getId(), $newObjectsId);
         });

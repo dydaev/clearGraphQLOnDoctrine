@@ -10,18 +10,18 @@ require_once __DIR__.'/../../../vendor/autoload.php';
 use entities\User;
 use GraphQL\Error\Error;
 use \Doctrine\ORM\EntityManager;
-use \entities\Person;
-use \entities\Contact;
-use \entities\Customer;
 use Utils\Utils;
 
-class UserResolve
+class UserResolve extends AbstractResolve
 {
     /**
-     * $EM : Entity Manager
-     * $args : arguments for person and User entityes (name, login, password, tags, contacts ...etc)
+     * @param EntityManager $EM
+     * @param array $args arguments for person and User entityes (name, login, password, tags, contacts ...etc)
+     *
+     * @return  User
+     * @throws
      */
-    public static function entityNew($EM, $args): User
+    public static function entityNew(EntityManager $EM, $args): User
     {
         $user = new User();
 
@@ -40,9 +40,11 @@ class UserResolve
     }
 
     /**
-     * @param EntityManager $EM : Entity Manager
+     * @param EntityManager $EM
      * @param mixed $args : arguments for person and user entityes (name, login, password, tags, contacts ...etc)
+     *
      * @return  User | null
+     * @throws
      */
     public static function entityUpdate(EntityManager $EM, $args): User
     {
@@ -81,9 +83,11 @@ class UserResolve
     }
 
     /**
-     * @param EntityManager $EM : Entity Manager
+     * @param EntityManager $EM
      * @param mixed $args : argument values uuid person
+     *
      * @return  User | null
+     * @throws
      */
     public static function entityDelete(EntityManager $EM, $args): User
     {
@@ -117,15 +121,15 @@ class UserResolve
         return null;
     }
 
-    public static function createUser(){
-        return function($root, $args, $context){
+    public static function create(){
+        return function(/** @noinspection PhpUnusedParameterInspection */$root, $args, $context){
             //if (empty($context['user'])) throw new Error("no authorized");
 
             if(!empty($args['login'])) {
                 if(!empty($args['password'])){
 //                    if (!empty($args['contacts']) && is_array($args['contacts']) && count($args['contacts']) > 0) {
 
-                        $EM = $context['EntityManager'];
+                        $EM = self::getEntityManager($context);
 
                         $user = $EM->getRepository('entities\User')->findOneBy([ 'login' => $args['login'] ]);
 
@@ -141,30 +145,30 @@ class UserResolve
             } else throw new Error("Can`t create user without login");
         };}
 
-    public static function updateUser(){
-        return function($root, $args, $context){
+    public static function update(){
+        return function(/** @noinspection PhpUnusedParameterInspection */$root, $args, $context){
             if (empty($context['user'])) throw new Error("no authorized");
 
             if (!empty($args['uuid'])) {
 
-                $EM = $context['EntityManager'];
+                $EM = self::getEntityManager($context);
                 $user = self::entityUpdate($EM, $args);
 
                 if (!empty($user)) {
 
                     return $user->getGraphArray();
                 } else throw new Error("Can`t update user, what went wrong");
-
             }
+            throw new Error("no user uuid to updating");
         };}
 
-    public static function deleteUser(){
-        return function($root, $args, $context){
+    public static function delete(){
+        return function(/** @noinspection PhpUnusedParameterInspection */$root, $args, $context){
             if (empty($context['user'])) throw new Error("no authorized");
 
             if (!empty($args['uuid'])) {
 
-                $EM = $context['EntityManager'];
+                $EM = self::getEntityManager($context);
                 $user = CustomerResolve::entityDelete($EM, $args);
 
                 if (!empty($user)) {
@@ -175,34 +179,35 @@ class UserResolve
             } else throw new Error("Need paste uuid for removing user");
         };}
 
-    public static function getUser(){
-        return function($root, $args, $context){
+    public static function getUserByUuid(){
+        return function(/** @noinspection PhpUnusedParameterInspection */$root, $args, $context){
             if (empty($context['user'])) throw new Error("no authorized");
 
-            $EM = $context['EntityManager'];
+            $EM = self::getEntityManager($context);
 
             $person = $EM->getRepository('entities\Person')->findOneBy([ 'uuid' => $args['uuid'] ]);
 
             if (!empty($person)) {
                 return $person->getUser()->getGraphArray();
             }
+            throw new Error("user is not found");
     };}
 
-    public static function getAllUsers(){
-        return function($root, $args, $context){
+    public static function getAll(){
+        return function(/** @noinspection PhpUnusedParameterInspection */$root, $args, $context){
             if (empty($context['user'])) throw new Error("no authorized");
 
-            $EM = $context['EntityManager'];
+            $EM = self::getEntityManager($context);
 
             $res = $EM->getRepository('entities\User')->findAll();
 
-            return array_map(function($user){return $user->getGraphArray();},$res) ;
+            return array_map(function(User $user){return $user->getGraphArray();},$res) ;
     };}
 
     public static function authorization(){
-        return function($root, $args, $context){
+        return function(/** @noinspection PhpUnusedParameterInspection */$root, $args, $context){
 
-            $EM = $context['EntityManager'];
+            $EM = self::getEntityManager($context);
             if(!empty($args['login']) && !empty($args['password'])) {
 
                 $user = $EM->getRepository('entities\User')->findOneBy([ 'login' => $args['login'] ]);
@@ -225,22 +230,18 @@ class UserResolve
                         ];
                     }
                 }
-
                 throw new Error("Login or password is wrong");
 
             } else throw new Error("Login or password is empty");
     };}
 
     public static function update_token(){
-        return function($root, $args, $context){
+        return function(/** @noinspection PhpUnusedParameterInspection */$root, $args, $context){
             if (empty($context['user'])) throw new Error("no authorized");
 
-            $EM = $context['EntityManager'];
+            $EM = self::getEntityManager($context);
             if (!empty($args['token'])) {
-//                return[
-//                    'token' => $_SESSION['life']['die_time'],
-//                    'life_time' =>  date('U')
-//                ];
+
                 if (Utils::checkToken($args['token'])) {
 
                     $person = $EM->getRepository('entities\Person')->findOneBy([ 'uuid' => $_SESSION['life']['uusr'] ]);
@@ -266,13 +267,5 @@ class UserResolve
             }
 
             return null;
-    };}
-
-    public static function getCountOfUsers(){
-        return function($root, $args, $context){
-            if (empty($context['user'])) throw new Error("no authorized");
-
-        $res = self::getAllUsers();
-        return !empty($res) ? count($res($root, $args, $context)) : 0 ;
     };}
 }

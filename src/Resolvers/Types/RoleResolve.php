@@ -8,7 +8,6 @@
 
 namespace Resolvers\Types;
 
-
 use Doctrine\ORM\EntityManager;
 use entities\Role;
 use GraphQL\Error\Error;
@@ -227,4 +226,5 @@ class RoleResolve extends AbstractResolve
             } else throw new Error("no roleId to removing");
         };
     }
+
 }

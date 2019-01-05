@@ -6,15 +6,16 @@ namespace Resolvers\Types;
 require_once __DIR__.'/../../../vendor/autoload.php';
 use GraphQL\Error\Error;
 use \Doctrine\ORM\EntityManager;
-use \entities\Person;
-use \entities\Contact;
 use \entities\Customer;
 
-class CustomerResolve
+class CustomerResolve extends AbstractResolve
 {
     /**
-     * $EM : Entity Manager
-     * $args : arguments for person and customer entityes (name, discount_card,tags, contacts ...etc)
+     * @param EntityManager $EM
+     * @param  $args : arguments for person and customer entityes (name, discount_card,tags, contacts ...etc)
+     *
+     * @return  Customer
+     * @throws
      */
     public static function entityNew($EM, $args): Customer
     {
@@ -34,9 +35,10 @@ class CustomerResolve
     }
 
     /**
-     * @param EntityManager $EM : Entity Manager
+     * @param EntityManager $EM
      * @param mixed $args : arguments for person and customer entityes (name, discount_card,tags, contacts ...etc)
      * @return  Customer | null
+     * @throws
      */
     public static function entityUpdate(EntityManager $EM, $args): Customer
     {
@@ -63,15 +65,16 @@ class CustomerResolve
                 }
 
                 return $customer;
-            }// else throw new Error('contact for updating is not found');
+            }
         }
         return null;
     }
 
     /**
-     * @param EntityManager $EM : Entity Manager
+     * @param EntityManager $EM
      * @param mixed $args : argument values uuid person
      * @return  Customer | null
+     * @throws
      */
     public static function entityDelete(EntityManager $EM, $args): Customer
     {
@@ -105,14 +108,14 @@ class CustomerResolve
         return null;
     }
 
-    public static function createCustomer(){
-        return function($root, $args, $context){
+    public static function create(){
+        return function(/** @noinspection PhpUnusedParameterInspection */$root, $args, $context){
             if (empty($context['user'])) throw new Error("no authorized");
 
             //There must be at least one contact.
             if (!empty($args['contacts']) && is_array($args['contacts']) && count($args['contacts']) > 0) {
 
-                $EM = $context['EntityManager'];
+                $EM = self::getEntityManager($context);
 
                 return self::entityNew($EM, $args)->getGraphArray();
             } else {
@@ -121,30 +124,31 @@ class CustomerResolve
             
         };}
 
-    public static function updateCustomer(){
-        return function($root, $args, $context){
+    public static function update(){
+        return function(/** @noinspection PhpUnusedParameterInspection */$root, $args, $context){
             if (empty($context['user'])) throw new Error("no authorized");
 
             if (!empty($args['uuid'])) {
 
-                $EM = $context['EntityManager'];
+                $EM = self::getEntityManager($context);
                 $customer = self::entityUpdate($EM, $args);
 
                 if (!empty($customer)) {
 
                     return $customer->getGraphArray();
-                } else throw new Error("Can`t update customer, what went wrong");
 
+                } else throw new Error("Can`t update customer, what went wrong");
             }
+            throw new Error("no customer uuid to updating");
         };}
 
-    public static function deleteCustomer(){
-        return function($root, $args, $context){
+    public static function delete(){
+        return function(/** @noinspection PhpUnusedParameterInspection */$root, $args, $context){
             if (empty($context['user'])) throw new Error("no authorized");
 
             if (!empty($args['uuid'])) {
 
-                $EM = $context['EntityManager'];
+                $EM = self::getEntityManager($context);
                 $customer = CustomerResolve::entityDelete($EM, $args);
 
                 if (!empty($customer)) {
@@ -155,36 +159,29 @@ class CustomerResolve
             } else throw new Error("Need paste uuid for removing customer");
         };}
 
-    public static function getCustomer(){
-        return function($root, $args, $context){
+    public static function getCustomerByUuid(){
+        return function(/** @noinspection PhpUnusedParameterInspection */$root, $args, $context){
             if (empty($context['user'])) throw new Error("no authorized");
 
-            $EM = $context['EntityManager'];
+            $EM = self::getEntityManager($context);
 
             $person = $EM->getRepository('entities\Person')->findOneBy([ 'uuid' => $args['uuid'] ]);
 
             if (!empty($person)) {
                 return $person->getCustomer()->getGraphArray();
             }
+            throw new Error("customer is not found");
     };}
 
-    public static function getAllCustomers(){
-        return function($root, $args, $context){
+    public static function getAll(){
+        return function(/** @noinspection PhpUnusedParameterInspection */$root, $args, $context){
             if (empty($context['user'])) throw new Error("no authorized");
 
-            $EM = $context['EntityManager'];
+            $EM = self::getEntityManager($context);
 
             $res = $EM->getRepository('entities\Customer')->findAll();
 
-            return array_map(function($customer){return $customer->getGraphArray();},$res) ;
+            return array_map(function(Customer $customer){return $customer->getGraphArray();},$res) ;
     };}
 
-
-    public static function getCountOfCustomers(){
-        return function($root, $args, $context){
-            if (empty($context['user'])) throw new Error("no authorized");
-
-            $res = self::getAllCustomers();
-            return !empty($res) ? count($res($root, $args, $context)) : 0 ;
-    };}
 }
