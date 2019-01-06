@@ -1,0 +1,18 @@
+{
+  "name": "JTests",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node_modules/mocha/bin/mocha test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "graphQl tests",
+  "dependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^5.2.0",
+    "node-fetch": "^2.3.0"
+  }
+}
