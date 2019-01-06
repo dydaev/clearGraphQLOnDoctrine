@@ -130,6 +130,24 @@ class RoleResolve extends AbstractResolve
         };
     }
 
+        public static function getById(){
+        return function(/** @noinspection PhpUnusedParameterInspection */ $root, $args, $context){
+            if (empty($context['user'])) throw new Error("no authorized");
+
+            if (!empty($args['id'])) {
+
+                $EM = self::getEntityManager($context);
+
+                $role = $EM->getRepository('entities\Role')->findOneBy([ 'name' => $args['id'] ]);
+
+                if (!empty($role)) return $role->getGraphArray();
+
+                else throw new Error("role not found");
+
+            } else throw new Error("role id not specified");
+        };
+    }
+
     public static function create(){
         return function(/** @noinspection PhpUnusedParameterInspection */ $root, $args, $context){
             if (empty($context['user'])) throw new Error("no authorized");
@@ -169,11 +187,11 @@ class RoleResolve extends AbstractResolve
         return function(/** @noinspection PhpUnusedParameterInspection */ $root, $args, $context){
             if (empty($context['user'])) throw new Error("no authorized");
 
-            if (!empty($args['roleId'])) {
+            if (!empty($args['id'])) {
 
                 $EM = self::getEntityManager($context);
 
-                $role = $EM->getRepository('entities\Role')->find($args['roleId']);
+                $role = $EM->getRepository('entities\Role')->find($args['id']);
 
                 if (!empty($role) && $role instanceof Role) {
 
@@ -210,11 +228,11 @@ class RoleResolve extends AbstractResolve
         return function(/** @noinspection PhpUnusedParameterInspection */ $root, $args, $context) {
             if (empty($context['user'])) throw new Error("no authorized");
 
-            if(!empty($args['roleId'])) {
+            if(!empty($args['id'])) {
 
                 $EM = self::getEntityManager($context);
 
-                $role = $EM->getRepository('entities\Role')->find($args['roleId']);
+                $role = $EM->getRepository('entities\Role')->find($args['id']);
 
                 if (!empty($role) && $role instanceof Role) {
 

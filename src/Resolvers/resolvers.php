@@ -3,6 +3,8 @@ namespace Resolvers;
 
 require_once __DIR__.'/../../vendor/autoload.php';
 
+use Resolvers\Types\RoleResolve;
+use Resolvers\Types\RuleResolve;
 use Resolvers\Types\TagResolve;
 use Resolvers\Types\CustomerResolve;
 use Resolvers\Types\ContactsTypeResolve;
@@ -30,7 +32,15 @@ return [
         'countOfUsers' => UserResolve::getCount(),
         'userById' => UserResolve::getUserByUuid(),
         'authorization' => UserResolve::authorization(),
-        'update_token' => UserResolve::update_token()
+        'update_token' => UserResolve::update_token(),
+
+        'allRoles' => RoleResolve::getAll(),
+        'getRole' => RoleResolve::getById(),
+        'getRoleByName' => RoleResolve::getByName(),
+
+        'allRules' => RuleResolve::getAll(),
+        'getRule' => RuleResolve::getById(),
+
     ],
     'Mutation' => [
         'createTag'=> TagResolve::createTag(),
@@ -55,8 +65,17 @@ return [
         'deleteCustomer'=> CustomerResolve::delete(),
 
         'addContactToUser'=> ContactResolve::updateContact(),
+        'updateUserRoles' => UserResolve::updateRoles(),
         'createUser'=> UserResolve::create(),
         'updateUser'=> UserResolve::update(),
         'deleteUser'=> UserResolve::delete(),
+
+        'createRole' => RoleResolve::create(),
+        'updateRole' => RoleResolve::update(),
+        'deleteRole' => RoleResolve::delete(),
+
+        'createRule' => RuleResolve::create(),
+        'updateRule' => RuleResolve::update(),
+        'deleteRule' => RuleResolve::delete(),
     ]
 ];

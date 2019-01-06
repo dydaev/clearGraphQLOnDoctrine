@@ -123,11 +123,11 @@ class RuleResolve extends AbstractResolve
         return function(/** @noinspection PhpUnusedParameterInspection */ $root, $args, $context){
             if (empty($context['user'])) throw new Error("no authorized");
 
-            if (!empty($args['rulePath'] && !empty($args['$permission']))) {
+            if (!empty($args['rulePath'] && !empty($args['permission']))) {
 
                 $EM = self::getEntityManager($context);
 
-                $result = self::entityNew($EM, $args['rulePath'], $args['$permission'], $args['description']);
+                $result = self::entityNew($EM, $args['rulePath'], $args['permission'], $args['description']);
 
                 if ($result) return $result->getGraphArray();
 
@@ -142,15 +142,15 @@ class RuleResolve extends AbstractResolve
         return function(/** @noinspection PhpUnusedParameterInspection */ $root, $args, $context){
             if (empty($context['user'])) throw new Error("no authorized");
 
-            if (!empty($args['ruleId'])) {
+            if (!empty($args['id'])) {
 
                 $EM = self::getEntityManager($context);
 
-                $rule = $EM->getRepository('entities\Rule')->find($args['ruleId']);
+                $rule = $EM->getRepository('entities\Rule')->find($args['id']);
 
                 if (!empty($rule) && $rule instanceof Rule) {
 
-                    $result = self::entityUpdate($EM, $rule, $args['rulePath'], $args['$permission'], $args['description']);
+                    $result = self::entityUpdate($EM, $rule, $args['rulePath'], $args['permission'], $args['description']);
 
                     if ($result) return $result->getGraphArray();
 
@@ -158,7 +158,7 @@ class RuleResolve extends AbstractResolve
 
                 } else throw new Error("rule is not found");
 
-            } else throw new Error("no ruleId to updating");
+            } else throw new Error("no id to updating");
 
         };
     }
@@ -167,11 +167,11 @@ class RuleResolve extends AbstractResolve
         return function(/** @noinspection PhpUnusedParameterInspection */ $root, $args, $context) {
             if (empty($context['user'])) throw new Error("no authorized");
 
-            if(!empty($args['ruleId'])) {
+            if(!empty($args['id'])) {
 
                 $EM = self::getEntityManager($context);
 
-                $rule = $EM->getRepository('entities\Rule')->find($args['ruleId']);
+                $rule = $EM->getRepository('entities\Rule')->find($args['id']);
 
                 if (!empty($rule) && $rule instanceof Rule) {
 

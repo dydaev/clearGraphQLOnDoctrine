@@ -7,6 +7,7 @@ session_start();
 
 require_once __DIR__.'/../../../vendor/autoload.php';
 
+use entities\Person;
 use entities\User;
 use GraphQL\Error\Error;
 use \Doctrine\ORM\EntityManager;
@@ -16,108 +17,136 @@ class UserResolve extends AbstractResolve
 {
     /**
      * @param EntityManager $EM
-     * @param array $args arguments for person and User entityes (name, login, password, tags, contacts ...etc)
+     * @param Person $person
+     * @param string $login
+     * @param string $password
      *
      * @return  User
      * @throws
      */
-    public static function entityNew(EntityManager $EM, $args): User
+    public static function entityNew(EntityManager $EM, Person $person, $login, $password): User
     {
-        $user = new User();
+        if (!empty($login) && !empty($password)) {
 
-        if(!empty($args['login'])) $user->setLogin($args['login']);
-        if(!empty($args['password'])) $user->setPassword($args['password']);
+            $user = new User();
 
-        $person = PersonResolve::entityNew($EM, $args);
+            $user->setLogin($login);
+            $user->setPassword($password);
 
-        $user->setPerson($person);
+            $user->setPerson($person);
 
-        $EM->persist($user);
+            $EM->persist($user);
 
-        $EM->flush();
+            $EM->flush();
 
-        return $user;
-    }
-
-    /**
-     * @param EntityManager $EM
-     * @param mixed $args : arguments for person and user entityes (name, login, password, tags, contacts ...etc)
-     *
-     * @return  User | null
-     * @throws
-     */
-    public static function entityUpdate(EntityManager $EM, $args): User
-    {
-        if (!empty($args['uuid'])) {
-
-            $person = PersonResolve::entityUpdate($EM, $args);
-
-            if (!empty($person)) {
-
-                $user = $person->getUser();
-                $isChangedCustomer = false;
-
-                if(!empty($args['login']) && $user->getLogin() !== $args['login']) {
-
-                    $user->setLogin($args['login']);
-                    $isChangedCustomer = true;
-                }
-
-                if(!empty($args['password'])) {
-
-                    $user->setPassword($args['password']);
-                    $isChangedCustomer = true;
-                }
-
-                if ($isChangedCustomer){
-
-                    $EM->persist($person);
-
-                    $EM->flush();
-                }
-
-                return $user;
-            }
+            return $user;
         }
         return null;
     }
 
     /**
      * @param EntityManager $EM
-     * @param mixed $args : argument values uuid person
+     * @param Person $person
+     * @param string $name
+     * @param string $login
+     * @param array $tags
+     * @param array $contacts
+     * @param array $roles
      *
      * @return  User | null
      * @throws
      */
-    public static function entityDelete(EntityManager $EM, $args): User
+    public static function entityUpdate(EntityManager $EM, $person, $name, $login, $tags, $contacts, $roles): User
     {
-        if (!empty($args['uuid'])) {
 
-            $person = $EM->getRepository('entities\Person')->findOneBy([ 'uuid' => $args['uuid'] ]);
-
-            if (!empty($person)) {
+            if (!empty($person) && $person instanceof Person) {
 
                 $user = $person->getUser();
-                $isChangedCustomer= false;
 
-                if(true) {//if need removing other depends
+                if ($user && $user instanceof User){
 
+                    if(isset($login) && $user->getLogin() !== $login) {
 
-                    $isChangedCustomer = true;
-                }
+                        $user->setLogin($login);
+                        $EM->persist($user);
+                    }
 
-                if ($isChangedCustomer){
+                    if(isset($name) && $person->getName() !== $name) {
 
-                    $EM->remove($user);
+                        $person->setName($name);
+                        $EM->persist($person);
+                    }
+
+                    if(isset($roles)) {
+
+                        $oldRules = $user->getRoles();
+
+                        $updatedRoles = self::updateListObject($oldRules, $roles);
+
+                        $user->setRoles($updatedRoles);
+                        $EM->persist($user);
+
+                    }
+
+                    if(isset($contacts)) {
+
+                        $oldContacts = $person->getContacts();
+
+                        $updatedContacts = self::updateListObject($oldContacts, $contacts);
+
+                        $person->setContacts($updatedContacts);
+                        $EM->persist($person);
+
+                    }
+
+                    if(isset($tags)) {
+
+                        $oldTags = $person->getTags();
+
+                        $updatedTags = self::updateListObject($oldTags, $tags);
+
+                        $person->setTags($updatedTags);
+                        $EM->persist($person);
+
+                    }
 
                     $EM->flush();
 
-                    PersonResolve::entityDelete($EM, $args);
+                    return $user;
                 }
-
-                return $user;
             }
+
+        return null;
+    }
+
+    /**
+     * @param EntityManager $EM
+     * @param Person $person
+     *
+     * @return  User | null
+     * @throws
+     */
+    public static function entityDelete(EntityManager $EM, Person $person): User
+    {
+        if (!empty($person)) {
+
+            $user = $person->getUser();
+            $customer = $person->getCustomer();
+
+            if(empty($customer)) {
+
+                return empty(PersonResolve::entityDelete($EM, [ 'uuid' => $person->getUUID()] )) ? null : $user;
+            }
+
+//            $person->setUser(null);
+
+            $EM->remove($user);
+
+            $EM->flush();
+
+            return $user;
         }
+
         return null;
     }
 
@@ -133,8 +162,23 @@ class UserResolve extends AbstractResolve
 
                         $user = $EM->getRepository('entities\User')->findOneBy([ 'login' => $args['login'] ]);
 
-                        if (empty($user))
-                            return self::entityNew($EM, $args)->getGraphArray();
+                        if (empty($user)) {
+
+                            if (!empty($args['uuid']))
+                                $person = $EM->getRepository('entities\Person')->findOneBy([ 'uuid' => $args['uuid'] ]);
+
+                            if (empty($person)) $person = new Person();
+
+                            $user = self::entityNew($EM, $person, $args['login'], $args['password'] )->getGraphArray();
+
+                            if (!empty($args['contacts']) || !empty($args['tags']) || !empty($args['name']))
+                                $user = self::entityUpdate($EM, $person, $args['name'], null, $args['tags'], $args['contacts'], null );
+
+                            if (empty($user)) throw new Error("Can`t create user, what went wrong");
+
+                            return $user;
+                        }
+
                         else
                             throw new Error("Can`t create user, the login is used");
 
@@ -152,12 +196,45 @@ class UserResolve extends AbstractResolve
             if (!empty($args['uuid'])) {
 
                 $EM = self::getEntityManager($context);
-                $user = self::entityUpdate($EM, $args);
 
-                if (!empty($user)) {
+                $person = $EM->getRepository('entities\Person')->findOneBy([ 'uuid' => $args['uuid'] ]);
 
-                    return $user->getGraphArray();
-                } else throw new Error("Can`t update user, what went wrong");
+                if (!empty($person) && $person instanceof Person) {
+
+                    $user = self::entityUpdate($EM, $person, $args['name'], $args['login'], $args['tags'], $args['contacts'], null);
+
+                    if (!empty($user)) {
+
+                        return $user->getGraphArray();
+                    }
+                    else throw new Error("Can`t update user, what went wrong");
+                }
+                else throw new Error("user is not found");
+            }
+            throw new Error("no user uuid to updating");
+        };}
+
+    public static function updateRoles(){
+        return function(/** @noinspection PhpUnusedParameterInspection */$root, $args, $context){
+            if (empty($context['user'])) throw new Error("no authorized");
+
+            if (!empty($args['uuid'])) {
+
+                $EM = self::getEntityManager($context);
+
+                $person = $EM->getRepository('entities\Person')->findOneBy([ 'uuid' => $args['uuid'] ]);
+
+                if (!empty($person) && $person instanceof Person) {
+
+                    $user = self::entityUpdate($EM, $person, $args['name'], $args['login'], $args['tags'], $args['contacts'], $args['roles']);
+
+                    if (!empty($user)) {
+
+                        return $user->getGraphArray();
+                    }
+                    else throw new Error("Can`t update user, what went wrong");
+                }
+                else throw new Error("user is not found");
             }
             throw new Error("no user uuid to updating");
         };}
@@ -169,13 +246,21 @@ class UserResolve extends AbstractResolve
             if (!empty($args['uuid'])) {
 
                 $EM = self::getEntityManager($context);
-                $user = CustomerResolve::entityDelete($EM, $args);
 
-                if (!empty($user)) {
+                                $person = $EM->getRepository('entities\Person')->findOneBy([ 'uuid' => $args['uuid'] ]);
 
-                    return $user->getGraphArray();
+                if (!empty($person) && $person instanceof Person) {
 
-                } else throw new Error("Can`t find user for deleting");
+                    $user = self::entityDelete($EM, $person);
+
+                    if (!empty($user)) {
+
+                        return $user->getGraphArray();
+                    }
+                    else throw new Error("Can`t update user, what went wrong");
+                }
+                else throw new Error("user is not found");
+
             } else throw new Error("Need paste uuid for removing user");
         };}
 

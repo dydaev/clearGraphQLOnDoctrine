@@ -9,9 +9,16 @@ type token {
   life_time: String
 }
 
-type access {
+type rule {
   path: String!
-  rights: Int!
+  permission: Int!
+  description: String
+}
+
+type role {
+  name: String
+  rules: [rule]
+  description: String
 }
 
 type contactsType {
@@ -41,7 +48,7 @@ type user {
   login: String
   tags: [tag]
   contacts: [contact]
-  access_list: [access]
+  roles: [role]
 }
 
 type Query {
@@ -64,6 +71,13 @@ type Query {
   userById(uuid: String!): user
   authorization(login: String!, password: String!): token
   update_token(token: String!): token
+
+  allRoles: [role]
+  getRole(id: Int!): role
+  getRoleByName(name: String!): role
+
+  allRules: [rule]
+  getRule(id: Int): rule
 }
 
 input contactInput {
@@ -75,6 +89,10 @@ input contactInput {
 input tagInput {
   name: String!
   color: String
+}
+
+input roleInput {
+  name: String!
 }
 
 type Mutation {
@@ -95,16 +113,25 @@ type Mutation {
   addNewTagToCustomer(uuid: String!, tagName: String!, tagColor: String): customer
   addTagByIdToCustomer(uuid: String!, tagId: Int!): customer
   addContactToCustomer(personUuid: String!, contactUuid: String!): customer
+  addContactToUser(personUuid: String!, contactUuid: String!): user
   deleteTagOfCustomer(uuid: String!, tagId: Int, tagName: String): customer
 
   createCustomer(name: String, discount_card: Int ,tags: [tagInput], contacts: [contactInput!]!): customer
   updateCustomer(uuid: String!, name: String, discount_card: Int ,tags: [tagInput], contacts: [contactInput]): customer
   deleteCustomer(uuid: String!): customer
 
-  addContactToUser(personUuid: String!, contactUuid: String!): user
-  createUser(name: String, login: String!, password: String!, tags: [tagInput]): user
-  updateUser(uuid: String!, name: String, login: String ,tags: [tagInput], contacts: [contactInput]): user
+  createUser(uuid: String, name: String, login: String!, password: String!, tags: [tagInput], contacts: [contactInput]): user
+  updateUser(uuid: String!, name: String, login: String, tags: [tagInput], contacts: [contactInput]): user
+  updateUserRoles(uuid: String!, roles: [roleInput]): user
   deleteUser(uuid: String!): user
+
+  createRole(name: String!, description: String, rulesId:[Int]): role
+  updateRole(id: Int, name: String, description: String, rulesId:[Int]): role
+  deleteRole(id: Int!): role
+
+  createRule(rulePath: String!, permission: Int!): rule
+  updateRule(id: Int!, rulePath: String, permission: Int): rule
+  deleteRule(id: Int!): rule
 
 #  create():
 #  update():

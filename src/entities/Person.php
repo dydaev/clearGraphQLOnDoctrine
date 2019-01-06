@@ -182,7 +182,7 @@ class Person extends ProtoForGraph
      *
      * @param Contact $contactArray
      */
-    public function setContacts(Contact $contactArray)
+    public function setContacts(PersistentCollection $contactArray)
     {
         $this->contacts = $contactArray;
     }
