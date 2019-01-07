@@ -1,45 +1,49 @@
 <?php
-///**
-// * Created by PhpStorm.
-// * User: che
-// * Date: 26.12.18
-// * Time: 22:57
-// */
-//
-//namespace tests\Resolvers\Types;
-//
-//require_once __DIR__.'/../../../vendor/autoload.php';
-//
-//use entities\Contact;
-//
-//use entities\Tag;
-//use Resolvers\Types\CustomerResolve;
-//use Resolvers\Types\PersonResolve;
-//use PHPUnit\Framework\TestCase;
-//
-//class CustomerResolveTest extends TestCase
-//{
-//    private static $EM;
-//    private static $testPersonUuid;
-//
-//    public function __construct(?string $name = null, array $data = [], string $dataName = '')
-//    {
-//        if(empty(self::$EM )) self::$EM = require_once __DIR__.'/../../../config/bootstrap.php';
-//        parent::__construct($name, $data, $dataName);
-//    }
-//
-//    public function testCreateCustomer()
-//    {
-//        $args = [
-//            'name' => 'Test Customer'
-//        ];
-//
-//        $cust = CustomerResolve::entityNew(self::$EM, $args);
-//
-//        self::$testPersonUuid = $cust->getPerson()->getUUID();
-//
-//        $this->assertEquals($args['name'], $cust->getPerson()->getName());
-//    }
+/**
+ * Created by PhpStorm.
+ * User: che
+ * Date: 26.12.18
+ * Time: 22:57
+ */
+
+namespace tests\Resolvers\Types;
+
+require_once __DIR__.'/../../../vendor/autoload.php';
+
+use entities\Contact;
+
+use entities\Person;
+use entities\Tag;
+use Resolvers\Types\CustomerResolve;
+use Resolvers\Types\PersonResolve;
+use PHPUnit\Framework\TestCase;
+use Resolvers\Types\UserResolve;
+
+class UserResolveTest extends TestCase
+{
+    private static $EM;
+    private static $testPersonUuid;
+
+    public function __construct(?string $name = null, array $data = [], string $dataName = '')
+    {
+        if(empty(self::$EM )) self::$EM = require_once __DIR__.'/../../../config/bootstrap.php';
+        parent::__construct($name, $data, $dataName);
+    }
+
+    public function testCreateUser()
+    {
+        $name = 'Test User';
+        $login = 'Fedya';
+        $pass = '123';
+
+        $pers = new Person();
+
+        $user = UserResolve::entityNew(self::$EM, $pers, $login, $pass, $name);
+
+        self::$testPersonUuid = $user->getPerson()->getUUID();
+
+        $this->assertEquals($name, $user->getPerson()->getName());
+    }
 //
 //    public function testCustomerAddFirstContacts() {
 //        $args = [
@@ -153,16 +157,14 @@
 //        $this->assertEquals($args['tags'], $res);
 //    }
 //
-//    public function testDeleteCustomer() {
-//
-//        $args = [
-//            'uuid' => self::$testPersonUuid,
-//            'name' => 'Test Customer'
-//        ];
-//
-//        $cust = CustomerResolve::entityDelete(self::$EM, $args);
-//
-//
-//        $this->assertEquals($args['name'], $cust->getPerson()->getName());
-//    }
-//}
+    public function testDeleteUser() {
+        $name = 'Test User';
+
+        $pers = self::$EM->getRepository('entities\Person')->findOneBy([ 'uuid' => self::$testPersonUuid ]);
+
+        $cust = UserResolve::entityDelete(self::$EM, $pers);
+
+
+        $this->assertEquals($name, $cust->getPerson()->getName());
+    }
+}

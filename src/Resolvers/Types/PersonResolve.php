@@ -61,6 +61,8 @@ class PersonResolve
       $EM->persist($person);
       $EM->flush();
 
+//      if (empty($person)) return null;
+
       return $person;
   }
     /**

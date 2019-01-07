@@ -45,6 +45,7 @@ type customer {
 
 type user {
   uuid: String
+  name: String
   login: String
   tags: [tag]
   contacts: [contact]

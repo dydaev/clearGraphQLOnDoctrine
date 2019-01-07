@@ -99,9 +99,9 @@ class Utils
       return $result;
   }
 
-  public static function checkToken(String $token) {
+  public static function checkToken($token) {
 
-      if (!empty($token)) {
+      if (!empty($token) && $token !== null && $token !== 'NULL') {
           if (isset($_SESSION['life'])) {
               if (!empty($_SESSION['life']['die_time']) && $_SESSION['life']['die_time'] > date('U')) {
                   if ($_SESSION['life']['key_of_life'] === $token) return true;

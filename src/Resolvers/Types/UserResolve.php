@@ -18,6 +18,7 @@ class UserResolve extends AbstractResolve
      * @param Person $person
      * @param string $login
      * @param string $password
+     * @param string $name
      *
      * @return  User
      * @throws
@@ -25,7 +26,6 @@ class UserResolve extends AbstractResolve
     public static function entityNew(EntityManager $EM, Person $person, $login, $password): User
     {
         if (!empty($login) && !empty($password)) {
-
             $user = new User();
 
             $user->setLogin($login);
@@ -54,7 +54,7 @@ class UserResolve extends AbstractResolve
      * @return  User | null
      * @throws
      */
-    public static function entityUpdate(EntityManager $EM, $person, $name, $login, $tags, $contacts, $roles): User
+    public static function entityUpdate(EntityManager $EM, $person, $login, $roles): User
     {
 
             if (!empty($person) && $person instanceof Person) {
@@ -69,12 +69,6 @@ class UserResolve extends AbstractResolve
                         $EM->persist($user);
                     }
 
-                    if(isset($name) && $person->getName() !== $name) {
-
-                        $person->setName($name);
-                        $EM->persist($person);
-                    }
-
                     if(isset($roles)) {
 
                         $oldRules = $user->getRoles();
@@ -86,27 +80,27 @@ class UserResolve extends AbstractResolve
 
                     }
 
-                    if(isset($contacts)) {
-
-                        $oldContacts = $person->getContacts();
-
-                        $updatedContacts = self::updateListObject($oldContacts, $contacts);
-
-                        $person->setContacts($updatedContacts);
-                        $EM->persist($person);
-
-                    }
-
-                    if(isset($tags)) {
-
-                        $oldTags = $person->getTags();
-
-                        $updatedTags = self::updateListObject($oldTags, $tags);
-
-                        $person->setTags($updatedTags);
-                        $EM->persist($person);
-
-                    }
+//                    if(isset($contacts)) {
+//
+//                        $oldContacts = $person->getContacts();
+//
+//                        $updatedContacts = self::updateListObject($oldContacts, $contacts);
+//
+//                        $person->setContacts($updatedContacts);
+//                        $EM->persist($person);
+//
+//                    }
+//
+//                    if(isset($tags)) {
+//
+//                        $oldTags = $person->getTags();
+//
+//                        $updatedTags = self::updateListObject($oldTags, $tags);
+//
+//                        $person->setTags($updatedTags);
+//                        $EM->persist($person);
+//
+//                    }
 
                     $EM->flush();
 
@@ -131,14 +125,14 @@ class UserResolve extends AbstractResolve
             $user = $person->getUser();
             $customer = $person->getCustomer();
 
-            if(empty($customer)) {
-
-                return empty(PersonResolve::entityDelete($EM, [ 'uuid' => $person->getUUID()] )) ? null : $user;
-            }
-
-//            $person->setUser(null);
-
             $EM->remove($user);
+
+            if(empty($customer)) $EM->remove($person);
+            else {
+                $person->setUser(null);
+
+                $EM->persist($person);
+            }
 
             $EM->flush();
 
@@ -148,39 +142,49 @@ class UserResolve extends AbstractResolve
         return null;
     }
 
+    public static function isLoginFree(){
+        return function(/** @noinspection PhpUnusedParameterInspection */$root, $args, $context){
+
+            if(!empty($args['login'])) {
+
+                $EM = self::getEntityManager($context);
+
+                $user = $EM->getRepository('entities\User')->findOneBy([ 'login' => $args['login'] ]);
+
+                if (empty($user)) return true;
+
+                return false;
+
+            } else throw new Error("login is empty");
+        };}
+
     public static function create(){
         return function(/** @noinspection PhpUnusedParameterInspection */$root, $args, $context){
-            //if (empty($context['user'])) throw new Error("no authorized");
+            if (empty($context['user'])) throw new Error("no authorized");
 
             if(!empty($args['login'])) {
                 if(!empty($args['password'])){
-//                    if (!empty($args['contacts']) && is_array($args['contacts']) && count($args['contacts']) > 0) {
+
+                    $checkLogin = self::isLoginFree();
+
+                    if ($checkLogin(null, $args, $context)) {
 
                         $EM = self::getEntityManager($context);
 
-                        $user = $EM->getRepository('entities\User')->findOneBy([ 'login' => $args['login'] ]);
+                        if (empty($args['uuid']))
+                            $person = $EM->getRepository('entities\Person')->findOneBy([ 'uuid' => $args['uuid'] ]);
 
-                        if (empty($user)) {
+                        if (empty($person)) $person = PersonResolve::entityNew($EM, $args);
 
-                            if (!empty($args['uuid']))
-                                $person = $EM->getRepository('entities\Person')->findOneBy([ 'uuid' => $args['uuid'] ]);
+                        $user = self::entityNew($EM, $person, $args['login'], $args['password']);
 
-                            if (empty($person)) $person = new Person();
+                        if (empty($user)) throw new Error("Can`t create user, what went wrong");
 
-                            $user = self::entityNew($EM, $person, $args['login'], $args['password'] )->getGraphArray();
+                        return $user->getGraphArray();
+                    }
 
-                            if (!empty($args['contacts']) || !empty($args['tags']) || !empty($args['name']))
-                                $user = self::entityUpdate($EM, $person, $args['name'], null, $args['tags'], $args['contacts'], null );
-
-                            if (empty($user)) throw new Error("Can`t create user, what went wrong");
-
-                            return $user;
-                        }
-
-                        else
-                            throw new Error("Can`t create user, the login is used");
-
-//                    } else throw new Error("Can`t create user, need add contact");
+                    else
+                        throw new Error("Can`t create user, the login is used");
 
                 } else throw new Error("Can`t create user without password");
 
@@ -195,11 +199,11 @@ class UserResolve extends AbstractResolve
 
                 $EM = self::getEntityManager($context);
 
-                $person = $EM->getRepository('entities\Person')->findOneBy([ 'uuid' => $args['uuid'] ]);
+                $person = PersonResolve::entityUpdate($EM, $args);
 
                 if (!empty($person) && $person instanceof Person) {
 
-                    $user = self::entityUpdate($EM, $person, $args['name'], $args['login'], $args['tags'], $args['contacts'], null);
+                    $user = self::entityUpdate($EM, $person, $args['login'], null);
 
                     if (!empty($user)) {
 
@@ -224,7 +228,7 @@ class UserResolve extends AbstractResolve
 
                 if (!empty($person) && $person instanceof Person) {
 
-                    $user = self::entityUpdate($EM, $person, $args['name'], $args['login'], $args['tags'], $args['contacts'], $args['roles']);
+                    $user = self::entityUpdate($EM, $person, $args['name'], null, $args['roles']);
 
                     if (!empty($user)) {
 

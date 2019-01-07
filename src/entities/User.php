@@ -41,14 +41,33 @@ class User extends ProtoForGraph
      */
     protected $roles;
 
+    /**
+     * initial rewrite values for ProtoForGraph->getGraphArray()
+     */
+    public function initialRenamedArray()
+    {
+        $this->renamedKeys = [
+            'roles' => $this->mapEntityCollectionToGraph($this->roles),
+            'person' => function () {
+                return [
+                    'uuid' => $this->person->getUUID(),
+                    'contacts' => $this->mapEntityCollectionToGraph($this->person->getContacts()),
+                    'tags' => $this->mapEntityCollectionToGraph($this->person->getTags()),
+                    'name' => $this->person->getName()
+                ];
+            }
+        ];
+    }
+
     public function __construct () {
+
         $this->roles = new ArrayCollection();
     }
 
     /**
-     * @return PersistentCollection
+     * @return mixed
      */
-    public function getRoles(): PersistentCollection
+    public function getRoles()
     {
         return $this->roles;
     }

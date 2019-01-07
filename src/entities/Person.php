@@ -24,7 +24,7 @@ class Person extends ProtoForGraph
     protected $uuid;
 
     /**
-     * @Column(type="string")
+     * @Column(type="string", nullable=true)
      */
     protected $name;
 
@@ -148,7 +148,7 @@ class Person extends ProtoForGraph
     /**
      * @return mixed
      */
-    public function getCustomer(): Customer
+    public function getCustomer()
     {
         return $this->customer;
     }
@@ -215,7 +215,7 @@ class Person extends ProtoForGraph
      */
     public function getName(): string
     {
-        return $this->name;
+        return isset($this->name) ? $this->name : '';
     }
 
     /**
