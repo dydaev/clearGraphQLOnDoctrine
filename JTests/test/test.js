@@ -1,15 +1,13 @@
-const chai = require("chai");
+const assert = require("chai").assert;
 const fetch = require('node-fetch');
 
-const assert = chai.assert;
-
 async function getGraph (data, token) {
-    const res = await fetch('http://localhost:8080',{
+    const res = await fetch('http://127.0.0.1:8080',{
         method: 'POST',
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
-          'token': token ? token : null
+          'Token': token ? token : null
         },
         body: JSON.stringify({ query: data })
       });
@@ -29,7 +27,7 @@ describe('getting customers without authorization', function(){
      assert.equal(res.errors[0].message, 'no authorized');
 }) });
 
-let tok;
+let tok = '';
 
 describe('getting new token', function(){
     it('should return new token', async function(){
@@ -49,7 +47,7 @@ describe('getting new token', function(){
 }) });
 
 describe('getting all customers (authorized)', function(){
-    it('should return all customers', async function(){
+    it('should return array of customers', async function(){
 
          let res = await getGraph(`{
             allCustomers{
@@ -57,5 +55,19 @@ describe('getting all customers (authorized)', function(){
             }
          }`, tok);
 
-     assert.equal(res.data, );
+         assert.typeOf(res.data.allCustomers, 'array', 'returned customers is not array');
+         // assert.typeOf(res.data.allCustomers, 'array', 'returned customers is not array');
+}) });
+
+describe('getting customers with wrong token', function(){
+    it('should return error no authorized when wrong token', async function(){
+
+         let res = await getGraph(`{
+            allCustomers{
+                name
+            }
+         }`, tok+'brokenToken');
+
+        assert.isArray(res.errors, "has not errors");
+        assert.equal(res.errors[0].message, 'no authorized');
 }) });

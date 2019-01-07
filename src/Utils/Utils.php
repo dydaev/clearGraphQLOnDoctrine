@@ -2,7 +2,6 @@
 
 namespace Utils;
 
-session_start();
 date_default_timezone_set('UTC');
 
 class Utils
@@ -101,6 +100,7 @@ class Utils
   }
 
   public static function checkToken(String $token) {
+
       if (!empty($token)) {
           if (isset($_SESSION['life'])) {
               if (!empty($_SESSION['life']['die_time']) && $_SESSION['life']['die_time'] > date('U')) {
@@ -115,7 +115,7 @@ class Utils
 
   public static function getMySelf($token) {
 
-      if (self::checkToken($token) && !empty($_SESSION['life']['user_login'])) return $_SESSION['life']['user_login'];
+      if (self::checkToken($token) ) return 'roma';//&& !empty($_SESSION['life']['user_login'])) return $_SESSION['life']['user_login'];
 
       return null;
   }
