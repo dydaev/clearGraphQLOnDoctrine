@@ -81,10 +81,11 @@ module.exports = function(tok) {
 
                         ruleReadFaceID = res.data.createRule.id;
 
-                        assert.equal(res.data.createRule.permission, "reading customers facebooks", 'has not equal rule permission');
+                        assert.equal(res.data.createRule.description, "reading customers facebooks", 'has not equal rule permission');
                         assert.equal(res.data.createRule.rulePath, rulePath, 'has not equal rule path');
                         assert.equal(res.data.createRule.permission, pulePermission, 'has not equal rule permission');
                     });
+
 
                     it('should create new ReadWrite rule', async function () {
 
@@ -103,6 +104,11 @@ module.exports = function(tok) {
 
                         const ruleReadWriteFaceID = res.data.createRule.id;
 
+                        assert.equal(res.data.createRule.description, "reading and writing customers facebooks", 'has not equal rule permission');
+                        assert.equal(res.data.createRule.rulePath, rulePath, 'has not equal rule path');
+                        assert.equal(res.data.createRule.permission, 3, 'has not equal rule permission');
+
+
                         describe('delete readWrite rule', function () {
                             it('should return deleted rule', function* () {
 
@@ -119,10 +125,6 @@ module.exports = function(tok) {
                                 assert.equal(res.data.deleteRule.description, 'reading and writing customers facebooks', 'has not equal description');
                             })
                         });
-
-                        assert.equal(res.data.createRule.permission, "reading and writing customers facebooks", 'has not equal rule permission');
-                        assert.equal(res.data.createRule.rulePath, rulePath, 'has not equal rule path');
-                        assert.equal(res.data.createRule.permission, pulePermission, 'has not equal rule permission');
                     })
 
                 });

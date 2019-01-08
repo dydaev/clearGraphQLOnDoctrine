@@ -11,22 +11,22 @@ class Rule extends ProtoForGraph
      * @Column(type="integer")
      * @GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @Column(type="string")
      */
-    private $rulePath;
+    protected $rulePath;
 
     /**
     * @Column(type="integer", length=3)
     */
-    private $permission;
+    protected $permission;
 
     /**
-     * @Column(type="string", length=25, nullable=true)
+     * @Column(type="string", length=1000, nullable=true)
      */
-    private $description;
+    protected $description;
 
     /**
      * @return integer

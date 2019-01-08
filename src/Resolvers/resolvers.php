@@ -39,7 +39,7 @@ return [
         'getRoleByName' => RoleResolve::getByName(),
 
         'allRules' => RuleResolve::getAll(),
-        'getRule' => RuleResolve::getById(),
+        'getRuleById' => RuleResolve::getById(),
 
     ],
     'Mutation' => [

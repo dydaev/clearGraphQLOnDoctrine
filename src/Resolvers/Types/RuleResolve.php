@@ -31,11 +31,17 @@ class RuleResolve extends AbstractResolve
 
             try {
 
+                $rule->setRulePath($rulePath);
+
+                $rule->setPermission($permission);
+
+                $rule->setDescription($description);
+
                 $EM->persist($rule);
 
                 $EM->flush();
 
-                return self::entityUpdate($EM, $rule, $rulePath, $permission, $description);
+                return $rule;
 
             } catch (\Exception $e) {
 
@@ -60,11 +66,11 @@ class RuleResolve extends AbstractResolve
     {
         if(!empty($rule)) {
 
-            if (!empty($rulePath)) $rule->setRulePath($rulePath);
+            if (isset($rulePath) && $rule->getRulePath() !==$rulePath ) $rule->setRulePath($rulePath);
 
-            if (!empty($permission)) $rule->setPermission($permission);
+            if (isset($permission) && $rule->getPermission() !== $permission) $rule->setPermission($permission);
 
-            if(!empty($description)) $rule->setDescription($description);
+            if(isset($description) && $rule->getDescription() !== $description) $rule->setDescription($description);
 
             $EM->persist($rule);
 
@@ -139,15 +145,12 @@ class RuleResolve extends AbstractResolve
 
                     $result = self::entityNew($EM, $args['rulePath'], $args['permission'], $args['description']);
 
+                    return $result->getGraphArray();
+
                 } catch (\Exception $e) {
 
-                    throw new Error("rule is not created: ". $e->getMessage());
+                    throw new Error("rule is not created, what want wrong: ".$e->getMessage());
                 }
-
-
-                if ($result) return $result->getGraphArray();
-
-                throw new Error("rule did not create");
 
             } else throw new Error("rulePath or permission is not specified");
 
