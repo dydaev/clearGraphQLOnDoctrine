@@ -29,11 +29,13 @@ class RoleResolve extends AbstractResolve
 
             $role = new Role();
 
+            $role->setName($name);
+
             $EM->persist($role);
 
             $EM->flush();
 
-            return self::entityUpdate($EM, $role, $name, $description, $rules);
+            return self::entityUpdate($EM, $role, null, $description, $rules);
 
         } else return null;
     }
@@ -52,9 +54,9 @@ class RoleResolve extends AbstractResolve
     {
         if(!empty($role)) {
 
-            if (!empty($name)) $role->setName($name);
+            if (isset($name) && $name !== $role->getName()) $role->setName($name);
 
-            if(!empty($description)) $role->setDescription($description);
+            if(isset($description) && $description !== $role->getDescription()) $role->setDescription($description);
 
             if(!empty($newRules)) {
 
@@ -64,8 +66,6 @@ class RoleResolve extends AbstractResolve
 
                 $role->setAccessList($updatedRules);
 
-            } else {
-                $role->clearRules();
             }
 
             $EM->persist($role);
@@ -90,6 +90,7 @@ class RoleResolve extends AbstractResolve
         if (!empty($role)) {
 
             $EM->remove($role);
+            $EM->flush();
             return $role;
         }
         return null;
@@ -107,7 +108,7 @@ class RoleResolve extends AbstractResolve
             $EM = self::getEntityManager($context);
 
             $res = $EM->getRepository('entities\Role')->findAll();
-
+//print_r($res[0]->getGraphArray());
             return array_map(function(Role $role){return $role->getGraphArray();},$res) ;
         };
     }
@@ -130,7 +131,7 @@ class RoleResolve extends AbstractResolve
         };
     }
 
-        public static function getById(){
+    public static function getById(){
         return function(/** @noinspection PhpUnusedParameterInspection */ $root, $args, $context){
             if (empty($context['user'])) throw new Error("no authorized");
 
@@ -148,6 +149,24 @@ class RoleResolve extends AbstractResolve
         };
     }
 
+    public static function isRoleUsed(){
+        return function(/** @noinspection PhpUnusedParameterInspection */ $root, $args, $context){
+            if (empty($context['user'])) throw new Error("no authorized");
+
+            if(!empty($args['name'])) {
+
+                $EM = self::getEntityManager($context);
+
+                $role = $EM->getRepository('entities\Role')->findOneBy([ 'name' => $args['name'] ]);
+
+                if (empty($role)) return true;
+
+                return false;
+
+            } else throw new Error("role name is empty");
+        };
+    }
+
     public static function create(){
         return function(/** @noinspection PhpUnusedParameterInspection */ $root, $args, $context){
             if (empty($context['user'])) throw new Error("no authorized");
@@ -156,27 +175,32 @@ class RoleResolve extends AbstractResolve
 
                 $EM = self::getEntityManager($context);
 
-                $rules = [];
+                $roleChecker = self::isRoleUsed();
 
-                if(!empty($args['rulesId'])) {
+                if ($roleChecker($root, $args, $context)) {
 
-                    foreach ($args['rulesId'] as $ruleId) {
+                    $rules = [];
 
-                        $rule = $EM->getRepository('entities\Rule')->find($ruleId);
+                    if (!empty($args['rulesId'])) {
 
-                        if(!empty($rule)) {
+                        foreach ($args['rulesId'] as $ruleId) {
 
-                            array_push($rules, $rule);
+                            $rule = $EM->getRepository('entities\Rule')->find($ruleId);
 
+                            if (!empty($rule)) {
+
+                                array_push($rules, $rule);
+
+                            }
                         }
                     }
-                }
+                    $result = self::entityNew($EM, $args['name'], $args['description'], $rules);
 
-                $result = self::entityNew($EM, $args['name'], $args['description'], $rules);
+                    if ($result) return $result->getGraphArray();
 
-                if ($result) return $result->getGraphArray();
+                    throw new Error("role did not create");
 
-                throw new Error("role did not create");
+                } else throw new Error("name for role is used, select another name");
 
             } else throw new Error("role name not specified");
 

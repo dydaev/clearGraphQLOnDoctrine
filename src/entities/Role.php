@@ -44,7 +44,7 @@ class Role extends ProtoForGraph
     public function initialRenamedArray()
     {
         $this->renamedKeys = [
-            '$rulesList' => function () {
+            'rulesList' => function () {
                 return [
                     'rules' => $this->mapEntityCollectionToGraph($this->getRules()),
                 ];
@@ -118,7 +118,7 @@ class Role extends ProtoForGraph
      */
     public function getDescription()
     {
-        return $this->description;
+        return !empty($this->description) ? $this->description : '';
     }
 
     /**
