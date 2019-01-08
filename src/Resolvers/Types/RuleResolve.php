@@ -29,11 +29,19 @@ class RuleResolve extends AbstractResolve
 
             $rule = new Rule();
 
-            $EM->persist($rule);
+            try {
 
-            $EM->flush();
+                $EM->persist($rule);
 
-            return self::entityUpdate($EM, $rule, $rulePath, $permission, $description);
+                $EM->flush();
+
+                return self::entityUpdate($EM, $rule, $rulePath, $permission, $description);
+
+            } catch (\Exception $e) {
+
+                throw new \Exception($e->getMessage());
+
+            }
 
         } else return null;
     }
@@ -127,7 +135,15 @@ class RuleResolve extends AbstractResolve
 
                 $EM = self::getEntityManager($context);
 
-                $result = self::entityNew($EM, $args['rulePath'], $args['permission'], $args['description']);
+                try {
+
+                    $result = self::entityNew($EM, $args['rulePath'], $args['permission'], $args['description']);
+
+                } catch (\Exception $e) {
+
+                    throw new Error("rule is not created: ". $e->getMessage());
+                }
+
 
                 if ($result) return $result->getGraphArray();
 

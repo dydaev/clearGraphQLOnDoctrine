@@ -89,9 +89,14 @@ class RoleResolve extends AbstractResolve
     {
         if (!empty($role)) {
 
-            $EM->remove($role);
-            $EM->flush();
-            return $role;
+            try {
+
+                $EM->remove($role);
+                $EM->flush();
+                return $role;
+            } catch (\Exception $exception) {
+                throw new \Exception($exception->getMessage());
+            }
         }
         return null;
     }
@@ -260,9 +265,15 @@ class RoleResolve extends AbstractResolve
 
                 if (!empty($role) && $role instanceof Role) {
 
-                    $res = self::entityDelete($EM, $role);
+                    try {
 
-                    return $res->getGraphArray();
+                        $res = self::entityDelete($EM, $role);
+                        return $res->getGraphArray();
+
+                    } catch (\Exception $e) {
+                        throw new Error("delete role is failed");
+                    }
+
                 }
                 else throw new Error("role is not found");
             } else throw new Error("no roleId to removing");

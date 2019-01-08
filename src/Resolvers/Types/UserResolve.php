@@ -70,7 +70,6 @@ class UserResolve extends AbstractResolve
                     }
 
                     if(isset($roles)) {
-
                         $oldRules = $user->getRoles();
 
                         $updatedRoles = self::updateListObject($oldRules, $roles);
@@ -228,7 +227,12 @@ class UserResolve extends AbstractResolve
 
                 if (!empty($person) && $person instanceof Person) {
 
-                    $user = self::entityUpdate($EM, $person, $args['name'], null, $args['roles']);
+                    $roles = [];
+                    foreach ($args['roles'] as $roleName) {
+                        array_push($roles, $EM->getRepository('entities\Role')->findOneBy([ 'name' => $roleName ]));
+                    }
+
+                    $user = self::entityUpdate($EM, $person, $args['name'], $roles);
 
                     if (!empty($user)) {
 
