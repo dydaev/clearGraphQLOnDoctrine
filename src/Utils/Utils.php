@@ -44,51 +44,50 @@ class Utils
     /**
      * @param $incomingObject  array ...[ 'User' => [ 'phone' => '345', 'email' => 'aa@aa.net']]
      * @param $accessRights  array with paths and rights ...[ ['User/phone', 3], ['User/email', 0] ]
-     * @param $mask  number rights ... 3
+     * @param $permissionMask  number rights ... 3
      * @param  $deep boolean, default clearing only self and daughters object, if true - clean up at self level
      * @return array  clear incoming object ...[ 'User' => [ 'phone' => '345']]
      */
-  static function checkRights($incomingObject, $accessRights, $mask, $deep = false) {
-      function recurse($entitiRes, $access, $acceptMask, $deep) {
+  static function checkRights($incomingObject, $accessRights, $permissionMask, $deep = false) {
+      function recurse($entityRes, $access, $acceptMask, $deep) {
 
-          $entitiPath = explode('/', $access[0]);
-          $entitiCurrentFolder = array_shift($entitiPath);
+          $entityPath = explode('/', $access[0]);
+          $entityCurrentFolder = array_shift($entityPath);
           $privilege = $access[1];
 
-          if ($entitiCurrentFolder && is_array($entitiRes)) {
+          if ($entityCurrentFolder && is_array($entityRes)) {
 
               $res = [];
-              foreach ($entitiRes as $key =>$subEntitiRes) {
+              foreach ($entityRes as $key =>$subEntityRes) {
 
-                  if ( $entitiCurrentFolder ===  $key || $entitiCurrentFolder === '*') {
-                      $newAccess = [ implode('/',$entitiPath)  , $privilege];
+                  if ( $entityCurrentFolder ===  $key || $entityCurrentFolder === '*') {
+                      $newAccess = [ implode('/',$entityPath)  , $privilege];
 
-                      if ($deep && count($entitiPath) == 1 && (in_array($entitiPath[count($entitiPath) -1], $entitiRes ))){
-                          $returnedData = $entitiRes;
+//another method returning data
+//                      if ((count($entityPath) == 0 && ($key == $entityCurrentFolder || $entityPath[0] == '*' ))
+//                          && (($privilege & $acceptMask) === $privilege)) return [$key => $subEntityRes];
+
+                      if ($deep && count($entityPath) == 1 && (in_array($entityPath[count($entityPath) -1], $entityRes ))){
+                          $returnedData = $entityRes;
                           $res = $returnedData ;
                       } else {
+                          $returnedData = recurse($subEntityRes, $newAccess, $acceptMask, $deep);
 
-                          $returnedData = recurse($subEntitiRes, $newAccess, $acceptMask, $deep);
                           if ($returnedData) $res[$key] = $returnedData ;
                       }
-
-
-                  } else {
-                      //разкоментировать если политика "разрешено все что не запрещено"
-                      //if (!array_key_exists($key, $res)) $res[$key] = $subEntitiRes;
                   }
               }
 
               return (is_array($res) && count($res) > 0) ? $res : null;
 
-          } else if (count($entitiPath) > 0 && !is_array($entitiRes)) {
+          } else if (count($entityPath) > 0 && !is_array($entityRes)) {
               //правило есть а данных нет
               return null;
 
-          } else if (count($entitiPath) === 0) {
+          } else if (count($entityPath) === 0) {
               //точка назначения пути, проверка билетов)
-              return (($entitiCurrentFolder == '*' || $entitiCurrentFolder == $entitiRes)
-                  && (($privilege & $acceptMask) === $privilege)) ? $entitiRes : null;
+
+              return ((($privilege & $acceptMask) === $privilege)) ? $entityRes : null;
 
           } else {
               //нет такого пути
@@ -98,7 +97,7 @@ class Utils
 
       $result = [];
       foreach ( $accessRights as $key => $access) {
-          $preRes = recurse($incomingObject, $access, $mask, $deep);
+          $preRes = recurse($incomingObject, $access, $permissionMask, $deep);
           $result = array_merge_recursive($result, is_array($preRes) ? $preRes : []);
       }
       return $result;
@@ -107,10 +106,11 @@ class Utils
     /**
      * @param EntityManager $EM
      * @param string $login
+     * @param string essence
      *
      * @return array
      */
-  public static function getUserAccessList(EntityManager $EM, $login)
+  public static function getUserAccessList(EntityManager $EM, $login, $entityName)
   {
       $user = $EM->getRepository('entities\User')->findOneBy([ 'login' => $login ]);
 
@@ -119,14 +119,14 @@ class Utils
 
           $accessList = [];
 
-          $roles->map(function (Role $role) use (&$accessList){
+          $roles->map(function (Role $role) use (&$accessList, $entityName){
              $rules = $role->getRules();
 
-             $rules->map(function (Rule $rule) use (&$accessList) {
+             $rules->map(function (Rule $rule) use (&$accessList, $entityName) {
 
                  $ruleForChecker = [$rule->getRulePath(), $rule->getPermission()];
 
-                 array_push($accessList,$ruleForChecker );
+                 if($rule->getEssence() == $entityName && $rule->getPermission() > 0) array_push($accessList,$ruleForChecker );
 
              });
           });

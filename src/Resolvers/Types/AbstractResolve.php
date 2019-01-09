@@ -8,9 +8,11 @@
 
 namespace Resolvers\Types;
 
+use entities\ProtoForGraph;
 use GraphQL\Error\Error;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\PersistentCollection;
+use Utils\Utils;
 
 abstract class AbstractResolve
 {
@@ -79,5 +81,46 @@ abstract class AbstractResolve
         } else $oldObjects->clear();
 
         return $oldObjects;
+    }
+
+    /**
+     * @param $context
+     * @param $entityName
+     * @return array
+     */
+    protected static function getUserAccess($context, $entityName) {
+        $accessList = Utils::getUserAccessList(self::getEntityManager($context), $context['user'], $entityName);
+        return  $accessList ? $accessList : null;
+    }
+
+    /**
+     * @param $data
+     * @param array $userAccessList
+     * @param int $permissionMask
+     * @param boolean $deep
+     *
+     * @return array
+     */
+    protected static function returnedData($data, $userAccessList, $permissionMask, $deep = false) {
+
+        $getData = function($inData){
+
+            if ($inData instanceof ProtoForGraph)
+
+                $res = $inData->getGraphArray();
+            else
+                $res = $inData;
+
+            return $res;
+        };
+
+        if ($data instanceof PersistentCollection) $data = $data->toArray();
+
+        if (is_array($data))
+            $result = array_map(function(ProtoForGraph $entityObj) use ($getData){return $getData($entityObj);},$data);
+        else
+            $result = $getData($data);
+
+        return  Utils::checkRights($result, $userAccessList, $permissionMask, $deep);
     }
 }

@@ -4,6 +4,9 @@ declare(strict_types=1);
 namespace Resolvers\Types;
 
 require_once __DIR__.'/../../../vendor/autoload.php';
+
+use Doctrine\ORM\PersistentCollection;
+use entities\ProtoForGraph;
 use GraphQL\Error\Error;
 use \Doctrine\ORM\EntityManager;
 use \entities\Customer;
@@ -177,17 +180,14 @@ class CustomerResolve extends AbstractResolve
     public static function getAll(){
         return function(/** @noinspection PhpUnusedParameterInspection */$root, $args, $context){
             if (empty($context['user'])) throw new Error("no authorized");
-            if (empty($userAccessList =  Utils::getUserAccessList(self::getEntityManager($context), $context['user'])))
+            if (!$userAccessList = self::getUserAccess($context, 'customer'))
                 throw new Error("permission denied");
 
             $EM = self::getEntityManager($context);
 
             $res = $EM->getRepository('entities\Customer')->findAll();
-            $customers = array_map(function(Customer $customer) {return $customer->getGraphArray();},$res) ;
 
-            print_r($customers);
-
-            return $customers;//Utils::checkRights($customers)
+            return self::returnedData($res,$userAccessList,1);
     };}
 
 }
