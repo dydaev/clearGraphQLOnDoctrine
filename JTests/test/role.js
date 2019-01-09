@@ -58,6 +58,65 @@ module.exports = function(tok) {
 
                 });
 
+                it('should add guest role', async function () {
+
+                    let res = await setGraph(`{
+     
+                          updateUserRoles(
+                            uuid: "${newGuestUUID}",
+                            roles: [
+                                    { name: "${roleName}" }
+                                    ])
+                            {
+                                login
+                                roles{
+                                    description
+                                }
+                            }
+                         }`, tok);
+
+                    if (Array.isArray(res.errors)) assert.exists(res.data, "has error: " + res.errors[0].message);
+
+                    assert.exists(res.data, 'not data: ' + res);
+                    assert.deepEqual(res.data.updateUserRoles.roles, [{"description":"role for all guest"}], 'user contains role');
+
+                });
+
+                it('deleting role, should return exception, role is used', async function () {
+
+                    let res = await setGraph(`{
+                            deleteRole(id: ${roleID}){
+                                description
+                            }
+                         }`, tok);
+
+                    assert.equal(res.errors[0].message, 'delete role is failed', 'has error');
+                });
+
+                it('should return guest by id without role', async function () {
+
+                    let res = await getGraph(`{
+     
+                          userById(uuid: "${newGuestUUID}")
+                            {
+                                login
+                                roles{
+                                    description
+                                }
+                            }
+                         }`, tok);
+
+                    if (Array.isArray(res.errors)) assert.exists(res.data, "has error: " + res.errors[0].message);
+
+                    assert.exists(res.data, 'not data: ' + res);
+
+                    assert.equal(res.data.userById.login, userLogin, 'user contains login');
+
+                    assert.deepEqual(res.data.userById.roles, [{"description":"role for all guest"}], 'user contains role');
+
+                    // assert.equal(res.data.updateUser.name, newUserName, 'has not equal name');
+                });
+
                 describe('testing rule', function () {
 
                     let ruleReadFaceID;
@@ -82,7 +141,7 @@ module.exports = function(tok) {
 
                         ruleReadFaceID = res.data.createRule.id;
 
-                        assert.equal(res.data.createRule.description, "reading customers facebooks", 'has not equal rule permission');
+                        assert.equal(res['data']['createRule']['description'], "reading customers facebooks", 'has not equal rule permission');
                         assert.equal(res.data.createRule.rulePath, rulePath, 'has not equal rule path');
                         assert.equal(res.data.createRule.permission, pulePermission, 'has not equal rule permission');
 
@@ -218,67 +277,8 @@ module.exports = function(tok) {
 
                 });
 
-                it('should add guest role', async function () {
-
-                    let res = await setGraph(`{
-     
-                          updateUserRoles(
-                            uuid: "${newGuestUUID}",
-                            roles: [
-                                    { name: "${roleName}" }
-                                    ])
-                            {
-                                login
-                                roles{
-                                    description
-                                }
-                            }
-                         }`, tok);
-
-                    if (Array.isArray(res.errors)) assert.exists(res.data, "has error: " + res.errors[0].message);
-
-                    assert.exists(res.data, 'not data: ' + res);
-                    assert.deepEqual(res.data.updateUserRoles.roles, [{"description":"role for all guest"}], 'user contains role');
-
-                });
-
-                it('deleting role, should return exception, role is used', async function () {
-
-                    let res = await setGraph(`{
-                            deleteRole(id: ${roleID}){
-                                description
-                            }
-                         }`, tok);
-
-                    assert.equal(res.errors[0].message, 'delete role is failed', 'has error');
-                });
-
-                it('should return guest by id without role', async function () {
-
-                    let res = await getGraph(`{
-     
-                          userById(uuid: "${newGuestUUID}")
-                            {
-                                login
-                                roles{
-                                    description
-                                }
-                            }
-                         }`, tok);
-
-                    if (Array.isArray(res.errors)) assert.exists(res.data, "has error: " + res.errors[0].message);
-
-                    assert.exists(res.data, 'not data: ' + res);
-
-                    assert.equal(res.data.userById.login, userLogin, 'user contains login');
-
-                    assert.deepEqual(res.data.userById.roles, [{"description":"role for all guest"}], 'user contains role');
-
-                    // assert.equal(res.data.updateUser.name, newUserName, 'has not equal name');
-                });
-
             });
-            describe('testing rule', function () {
+            describe('finish testing guest', function () {
                 it('should delete guest', async function () {
 
                     let res = await setGraph(`{

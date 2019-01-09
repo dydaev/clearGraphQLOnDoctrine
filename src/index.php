@@ -21,8 +21,8 @@ $token = Request\header('Token');
 
 $context = [
     'EntityManager' => DoctrineManager::getEntityManager(),
-//    'user' => $token !== "null" ? Utils::getMySelf($token) : null
-    'user' => 'test'
+//    'user' => $token !== "null" ? Utils::getMySelf($token) : null,
+    'user' => 'roma@i.ua'
 ];
 
 if (Request\method_is('post')) {

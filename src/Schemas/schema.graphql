@@ -11,6 +11,7 @@ type token {
 
 type rule {
   id: Int
+  essence: String!
   rulePath: String!
   permission: Int!
   description: String
@@ -137,8 +138,8 @@ type Mutation {
   updateRoleRules(roleId: Int!, rulesId:[Int]): role
   deleteRole(id: Int!): role
 
-  createRule(rulePath: String!, permission: Int!, description: String): rule
-  updateRule(id: Int!, rulePath: String, permission: Int, description: String): rule
+  createRule(essence: String!, rulePath: String!, permission: Int!, description: String): rule
+  updateRule(id: Int!, essence: String, rulePath: String, permission: Int, description: String): rule
   deleteRule(id: Int!): rule
 
 #  create():

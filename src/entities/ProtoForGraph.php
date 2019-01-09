@@ -36,7 +36,7 @@ class ProtoForGraph {
 
                 if ($value instanceof PersistentCollection) {
 
-                    $this->mapEntityCollectionTpGraph($value);
+                    $this->mapEntityCollectionToGraph($value);
 
                 } else if ($value instanceof Entity) {
 

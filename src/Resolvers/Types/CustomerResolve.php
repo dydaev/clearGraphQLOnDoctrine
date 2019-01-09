@@ -7,6 +7,7 @@ require_once __DIR__.'/../../../vendor/autoload.php';
 use GraphQL\Error\Error;
 use \Doctrine\ORM\EntityManager;
 use \entities\Customer;
+use Utils\Utils;
 
 class CustomerResolve extends AbstractResolve
 {
@@ -176,12 +177,17 @@ class CustomerResolve extends AbstractResolve
     public static function getAll(){
         return function(/** @noinspection PhpUnusedParameterInspection */$root, $args, $context){
             if (empty($context['user'])) throw new Error("no authorized");
+            if (empty($userAccessList =  Utils::getUserAccessList(self::getEntityManager($context), $context['user'])))
+                throw new Error("permission denied");
 
             $EM = self::getEntityManager($context);
 
             $res = $EM->getRepository('entities\Customer')->findAll();
+            $customers = array_map(function(Customer $customer) {return $customer->getGraphArray();},$res) ;
 
-            return array_map(function(Customer $customer){return $customer->getGraphArray();},$res) ;
+            print_r($customers);
+
+            return $customers;//Utils::checkRights($customers)
     };}
 
 }

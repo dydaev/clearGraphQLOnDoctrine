@@ -2,6 +2,11 @@
 
 namespace Utils;
 
+use Doctrine\ORM\EntityManager;
+use entities\Role;
+use entities\Rule;
+use entities\User;
+
 date_default_timezone_set('UTC');
 
 class Utils
@@ -97,6 +102,40 @@ class Utils
           $result = array_merge_recursive($result, is_array($preRes) ? $preRes : []);
       }
       return $result;
+  }
+
+    /**
+     * @param EntityManager $EM
+     * @param string $login
+     *
+     * @return array
+     */
+  public static function getUserAccessList(EntityManager $EM, $login)
+  {
+      $user = $EM->getRepository('entities\User')->findOneBy([ 'login' => $login ]);
+
+      if (!empty($user) && $user instanceof User) {
+          $roles = $user->getRoles();
+
+          $accessList = [];
+
+          $roles->map(function (Role $role) use (&$accessList){
+             $rules = $role->getRules();
+
+             $rules->map(function (Rule $rule) use (&$accessList) {
+
+                 $ruleForChecker = [$rule->getRulePath(), $rule->getPermission()];
+
+                 array_push($accessList,$ruleForChecker );
+
+             });
+          });
+
+          return $accessList;
+      }
+
+      return [];
+
   }
 
   public static function checkToken($token) {

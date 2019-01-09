@@ -16,6 +16,7 @@ class RuleResolve extends AbstractResolve
 {
     /**
      * @param EntityManager $EM
+     * @param String $essence
      * @param String $rulePath
      * @param String $permission
      * @param String $description
@@ -23,13 +24,15 @@ class RuleResolve extends AbstractResolve
      * @return Rule
      * @throws
      */
-    public static function entityNew(EntityManager $EM, $rulePath, $permission, $description): Rule
+    public static function entityNew(EntityManager $EM, $essence, $rulePath, $permission, $description): Rule
     {
         if(!empty($rulePath) && !empty($permission)) {
 
             $rule = new Rule();
 
             try {
+
+                $rule->setEssence($essence);
 
                 $rule->setRulePath($rulePath);
 
@@ -55,6 +58,7 @@ class RuleResolve extends AbstractResolve
     /**
      * @param EntityManager $EM
      * @param Rule $rule
+     * @param String $essence
      * @param String $rulePath
      * @param integer $permission
      * @param String $description
@@ -62,13 +66,15 @@ class RuleResolve extends AbstractResolve
      * @return Rule
      * @throws
      */
-    public static function entityUpdate(EntityManager $EM, Rule $rule, $rulePath, int $permission, $description): Rule
+    public static function entityUpdate(EntityManager $EM, Rule $rule, $essence, $rulePath, int $permission, $description): Rule
     {
         if(!empty($rule)) {
 
             try {
 
-                if (isset($rulePath) && $rule->getRulePath() !==$rulePath ) $rule->setRulePath($rulePath);
+                if (isset($rulePath) && $rule->getRulePath() !== $rulePath ) $rule->setRulePath($rulePath);
+
+                if (isset($essence) && $rule->getEssence() !== $essence ) $rule->setEssence($essence);
 
                 if (isset($permission) && $rule->getPermission() !== $permission) $rule->setPermission($permission);
 
@@ -160,7 +166,7 @@ class RuleResolve extends AbstractResolve
 
                 try {
 
-                    $result = self::entityNew($EM, $args['rulePath'], $args['permission'], $args['description']);
+                    $result = self::entityNew($EM, $args['essence'], $args['rulePath'], $args['permission'], $args['description']);
 
                     return $result->getGraphArray();
 
@@ -186,7 +192,7 @@ class RuleResolve extends AbstractResolve
 
                 if (!empty($rule) && $rule instanceof Rule) {
 
-                    $result = self::entityUpdate($EM, $rule, $args['rulePath'], $args['permission'], $args['description']);
+                    $result = self::entityUpdate($EM, $rule, $args['essence'], $args['rulePath'], $args['permission'], $args['description']);
 
                     if ($result) return $result->getGraphArray();
 

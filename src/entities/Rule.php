@@ -16,6 +16,11 @@ class Rule extends ProtoForGraph
     /**
      * @Column(type="string")
      */
+    protected $essence;
+
+    /**
+     * @Column(type="string")
+     */
     protected $rulePath;
 
     /**
@@ -34,6 +39,22 @@ class Rule extends ProtoForGraph
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEssence(): String
+    {
+        return $this->essence;
+    }
+
+    /**
+     * @param string $essence
+     */
+    public function setEssence(String $essence)
+    {
+        $this->essence = $essence;
     }
 
     /**
@@ -73,7 +94,7 @@ class Rule extends ProtoForGraph
      */
     public function getDescription(): String
     {
-        return $this->description;
+        return empty($this->description) ? '' : $this->description;
     }
 
     /**

@@ -66,14 +66,17 @@ class User extends ProtoForGraph
 
     /**
      * @return mixed
+     *
+     * @return PersistentCollection of roles
      */
-    public function getRoles()
+    public function getRoles(): PersistentCollection
     {
         return $this->roles;
     }
 
     /**
      * @param mixed $roles
+     *
      */
     public function setRoles($roles)
     {

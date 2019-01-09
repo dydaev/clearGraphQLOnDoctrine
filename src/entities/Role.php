@@ -2,6 +2,7 @@
 namespace entities;
 
 use \Doctrine\Common\Collections\ArrayCollection as ArrayCollection;
+use Doctrine\ORM\PersistentCollection;
 
 /**
 * @Entity @Table(name="role")
@@ -70,8 +71,10 @@ class Role extends ProtoForGraph
 
     /**
      * @return mixed
+     *
+     * @return PersistentCollection of rules
      */
-    public function getRules()
+    public function getRules(): PersistentCollection
     {
         return $this->rulesList;
     }
