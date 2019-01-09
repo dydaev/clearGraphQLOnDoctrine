@@ -60,20 +60,23 @@ abstract class AbstractResolve
     *
     * @return PersistentCollection updated collection
     */
-    protected static function updateListObject(PersistentCollection $oldObjects, array $newObjects): PersistentCollection
+    public static function updateListObject(PersistentCollection $oldObjects, array $newObjects): PersistentCollection
     {
 
-        $newObjectsId = array_map(function($newObject){ return $newObject->getId();}, $newObjects);
+        if (count($newObjects) > 0) {
 
-        $oldObjects->filter(function($oldObject) use ($newObjectsId) {
+            $newObjectsId = array_map(function($newObject){ return $newObject->getId();}, $newObjects);
 
-            return in_array($oldObject->getId(), $newObjectsId);
-        });
+            $oldObjects->filter(function($oldObject) use ($newObjectsId) {
 
-        foreach ($newObjects as $newObject) {
+                return in_array($oldObject->getId(), $newObjectsId);
+            });
 
-            if (!$oldObjects->contains($newObject)) $oldObjects->add($newObject);
-        }
+            foreach ($newObjects as $newObject) {
+
+                if (!$oldObjects->contains($newObject)) $oldObjects->add($newObject);
+            }
+        } else $oldObjects->clear();
 
         return $oldObjects;
     }

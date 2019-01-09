@@ -61,6 +61,7 @@ module.exports = function(tok) {
                 describe('testing rule', function () {
 
                     let ruleReadFaceID;
+                    let ruleReadWriteFaceID;
                     const rulePath = "customer/contacts/facebook";
                     const pulePermission = 1;
 
@@ -84,6 +85,27 @@ module.exports = function(tok) {
                         assert.equal(res.data.createRule.description, "reading customers facebooks", 'has not equal rule permission');
                         assert.equal(res.data.createRule.rulePath, rulePath, 'has not equal rule path');
                         assert.equal(res.data.createRule.permission, pulePermission, 'has not equal rule permission');
+
+                        describe('using readOnly rule with guest role', function () {
+                            it('should add rule to role', async function () {
+
+                                const rulesList = [ruleReadFaceID];
+
+                                let res = await setGraph(`{
+                                    updateRoleRules(roleId: ${roleID}, rulesId: ${rulesList}){
+                                        rules {
+                                            description
+                                        }
+                                    }
+                                 }`, tok);
+
+                                if (Array.isArray(res.errors)) assert.isNotArray(res.errors, "has error: " + res.errors[0].message);
+
+                                assert.exists(res.data, 'not data: ' + res);
+
+                                assert.equal(res.data.updateRoleRules.rules[0].description, 'reading customers facebooks', 'has not equal rule description');
+                            })
+                        });
                     });
 
 
@@ -102,18 +124,50 @@ module.exports = function(tok) {
 
                         assert.exists(res.data, 'not data: ' + res);
 
-                        const ruleReadWriteFaceID = res.data.createRule.id;
+                        ruleReadWriteFaceID = res.data.createRule.id;
 
                         assert.equal(res.data.createRule.description, "reading and writing customers facebooks", 'has not equal rule permission');
                         assert.equal(res.data.createRule.rulePath, rulePath, 'has not equal rule path');
                         assert.equal(res.data.createRule.permission, 3, 'has not equal rule permission');
 
 
-                        describe('delete readWrite rule', function () {
-                            it('should return deleted rule', function* () {
+                        describe('test readOnly rule', function () {
+                            it('should return exception deleting rule, rule is used in role', async function () {
 
-                                let res = yield setGraph(`{
-                                    deleteRule(id: "${ruleReadWriteFaceID}"){
+                                let res = await setGraph(`{
+                                    deleteRule(id: ${ruleReadFaceID}){
+                                        description
+                                    }
+                                 }`, tok);
+
+                                assert.exists(res.data, 'not data: ' + res);
+
+                                assert.equal(res.errors[0].message, 'delete rule is failed, what want wrong', 'has error');
+                            });
+
+                            it('should remove rule from guest role', async function () {
+
+                                const emptyRulesList = [];
+
+                                let res = await setGraph(`{
+                                    updateRoleRules(roleId: ${roleID}, rulesId: [${emptyRulesList}]){
+                                        rules {
+                                            description
+                                        }
+                                    }
+                                 }`, tok);
+
+                                if (Array.isArray(res.errors)) assert.isNotArray(res.errors, "has error: " + res.errors[0].message);
+
+                                assert.exists(res.data, 'not data: ' + res);
+
+                                assert.lengthOf(res.data.updateRoleRules.rules, 0, 'role has empty rules');
+                            });
+
+                            it('should return deleted readOnly rule', async function () {
+
+                                let res = await setGraph(`{
+                                    deleteRule(id: ${ruleReadFaceID}){
                                         description
                                     }
                                  }`, tok);
@@ -122,10 +176,45 @@ module.exports = function(tok) {
 
                                 assert.exists(res.data, 'not data: ' + res);
 
-                                assert.equal(res.data.deleteRule.description, 'reading and writing customers facebooks', 'has not equal description');
+                                assert.equal(res.data.deleteRule.description, 'reading customers facebooks', 'has not equal description');
                             })
+
+                            it('should return deleted role', async function () {
+
+                                let res = await setGraph(`{
+                                    deleteRole(id: ${roleID}){
+                                        description
+                                    }
+                                }`, tok);
+
+                                if (Array.isArray(res.errors)) assert.isNotArray(res.errors, "has error: " + res.errors[0].message);
+
+                                assert.exists(res.data, 'not data: ' + res);
+
+                                assert.equal(res.data.deleteRole.description, 'role for all guest', 'has not equal description');
+                            })
+
                         });
+
+
                     })
+
+                    // describe('test readWrite rule', function () {
+                    it('should return deleted readWrite rule', async function () {
+
+                        let res = await setGraph(`{
+                                deleteRule(id: ${ruleReadWriteFaceID}){
+                                    description
+                                }
+                             }`, tok);
+
+                        if (Array.isArray(res.errors)) assert.isNotArray(res.errors, "has error: " + res.errors[0].message);
+
+                        assert.exists(res.data, 'not data: ' + res);
+
+                        assert.equal(res.data.deleteRule.description, 'reading and writing customers facebooks', 'has not equal description');
+                    })
+                    // });
 
                 });
 
@@ -151,7 +240,6 @@ module.exports = function(tok) {
                     assert.exists(res.data, 'not data: ' + res);
                     assert.deepEqual(res.data.updateUserRoles.roles, [{"description":"role for all guest"}], 'user contains role');
 
-                    // assert.equal(res.data.updateUser.name, newUserName, 'has not equal name');
                 });
 
                 it('deleting role, should return exception, role is used', async function () {
@@ -206,20 +294,6 @@ module.exports = function(tok) {
 
                     assert.equal(res.data.deleteUser.login, userLogin, 'has not equal login');
                 });
-                it('should return deleted role', async function () {
-
-                    let res = await setGraph(`{
-                            deleteRole(id: ${roleID}){
-                                description
-                            }
-                         }`, tok);
-
-                    if (Array.isArray(res.errors)) assert.isNotArray(res.errors, "has error: " + res.errors[0].message);
-
-                    assert.exists(res.data, 'not data: ' + res);
-
-                    assert.equal(res.data.deleteRole.description, 'role for all guest', 'has not equal description');
-                })
             })
         })
 

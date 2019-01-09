@@ -98,6 +98,10 @@ input roleInput {
   name: String!
 }
 
+input ruleInput {
+  id: Int!
+}
+
 type Mutation {
 
   createTag(name: String!, color: String): tag
@@ -129,7 +133,8 @@ type Mutation {
   deleteUser(uuid: String!): user
 
   createRole(name: String!, description: String, rulesId:[Int]): role
-  updateRole(id: Int, name: String, description: String, rulesId:[Int]): role
+  updateRole(id: Int, name: String, description: String): role
+  updateRoleRules(roleId: Int!, rulesId:[Int]): role
   deleteRole(id: Int!): role
 
   createRule(rulePath: String!, permission: Int!, description: String): rule

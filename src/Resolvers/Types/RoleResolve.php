@@ -58,21 +58,26 @@ class RoleResolve extends AbstractResolve
 
             if(isset($description) && $description !== $role->getDescription()) $role->setDescription($description);
 
-            if(!empty($newRules)) {
+            if(isset($newRules)) {
 
                 $oldRules = $role->getRules();
 
                 $updatedRules = self::updateListObject($oldRules, $newRules);
 
                 $role->setAccessList($updatedRules);
-
             }
 
-            $EM->persist($role);
+            try {
 
-            $EM->flush();
+                $EM->persist($role);
+                $EM->flush();
 
-            return $role;
+                return $role;
+
+            } catch (\Exception $exception) {
+                throw new \Exception($exception->getMessage());
+            }
+
         }
 
         return null;
@@ -224,28 +229,53 @@ class RoleResolve extends AbstractResolve
 
                 if (!empty($role) && $role instanceof Role) {
 
+                    try {
+
+                        return self::entityUpdate($EM, $role, $args['name'], $args['description'], null)->getGraphArray();
+
+                    } catch (\Exception $e) {
+
+                        throw new Error("role did not update");
+                    }
+                } else throw new Error("role is not found");
+
+            } else throw new Error("no roleId to updating");
+
+        };
+    }
+
+    public static function updateRules(){
+        return function(/** @noinspection PhpUnusedParameterInspection */ $root, $args, $context){
+            if (empty($context['user'])) throw new Error("no authorized");
+
+            if (!empty($args['roleId'])) {
+
+                $EM = self::getEntityManager($context);
+
+                $role = $EM->getRepository('entities\Role')->find($args['roleId']);
+
+                if (!empty($role) && $role instanceof Role) {
+
                     $rules = [];
 
-                    if(!empty($args['rulesId'])) {
+                    if(isset($args['rulesId'])) {
 
                         foreach ($args['rulesId'] as $ruleId) {
 
                             $rule = $EM->getRepository('entities\Rule')->find($ruleId);
 
-                            if(!empty($rule)) {
-
-                                array_push($rules, $rule);
-
-                            }
+                            if(!empty($rule)) array_push($rules, $rule);
                         }
                     }
 
-                    $result = self::entityUpdate($EM, $role, $args['name'], $args['description'], $rules);
+                    try {
 
-                    if ($result) return $result->getGraphArray();
+                        return self::entityUpdate($EM, $role, null, null, $rules)->getGraphArray();
 
-                    throw new Error("role did not update");
+                    } catch (\Exception $e) {
 
+                        throw new Error("role did not update");
+                    }
                 } else throw new Error("role is not found");
 
             } else throw new Error("no roleId to updating");

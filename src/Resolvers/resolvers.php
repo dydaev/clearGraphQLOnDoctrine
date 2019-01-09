@@ -72,6 +72,7 @@ return [
 
         'createRole' => RoleResolve::create(),
         'updateRole' => RoleResolve::update(),
+        'updateRoleRules' => RoleResolve::updateRules(),
         'deleteRole' => RoleResolve::delete(),
 
         'createRule' => RuleResolve::create(),

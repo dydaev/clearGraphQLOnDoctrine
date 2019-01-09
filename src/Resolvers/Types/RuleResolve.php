@@ -66,17 +66,25 @@ class RuleResolve extends AbstractResolve
     {
         if(!empty($rule)) {
 
-            if (isset($rulePath) && $rule->getRulePath() !==$rulePath ) $rule->setRulePath($rulePath);
+            try {
 
-            if (isset($permission) && $rule->getPermission() !== $permission) $rule->setPermission($permission);
+                if (isset($rulePath) && $rule->getRulePath() !==$rulePath ) $rule->setRulePath($rulePath);
 
-            if(isset($description) && $rule->getDescription() !== $description) $rule->setDescription($description);
+                if (isset($permission) && $rule->getPermission() !== $permission) $rule->setPermission($permission);
 
-            $EM->persist($rule);
+                if(isset($description) && $rule->getDescription() !== $description) $rule->setDescription($description);
 
-            $EM->flush();
+                $EM->persist($rule);
 
-            return $rule;
+                $EM->flush();
+
+                return $rule;
+
+            } catch (\Exception $e) {
+
+                throw new \Exception($e->getMessage());
+
+            }
         }
 
         return null;
@@ -93,8 +101,17 @@ class RuleResolve extends AbstractResolve
     {
         if (!empty($rule)) {
 
-            $EM->remove($rule);
-            return $rule;
+            try {
+
+                $EM->remove($rule);
+                $EM->flush();
+
+                return $rule;
+
+            } catch (\Exception $e) {
+
+                throw new \Exception($e->getMessage());
+            }
         }
         return null;
     }
@@ -149,7 +166,7 @@ class RuleResolve extends AbstractResolve
 
                 } catch (\Exception $e) {
 
-                    throw new Error("rule is not created, what want wrong: ".$e->getMessage());
+                    throw new Error("rule is not created, what want wrong");
                 }
 
             } else throw new Error("rulePath or permission is not specified");
@@ -194,9 +211,17 @@ class RuleResolve extends AbstractResolve
 
                 if (!empty($rule) && $rule instanceof Rule) {
 
-                    $res = self::entityDelete($EM, $rule);
+                    try {
 
-                    return $res->getGraphArray();
+                        $res = self::entityDelete($EM, $rule);
+
+                        return $res->getGraphArray();
+
+                    } catch (\Exception $e) {
+
+                        throw new Error("delete rule is failed, what want wrong");
+                    }
+
                 }
                 else throw new Error("rule is not found");
             } else throw new Error("rule id is not specified");
