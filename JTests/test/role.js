@@ -121,14 +121,16 @@ module.exports = function(tok) {
 
                     let ruleReadFaceID;
                     let ruleReadWriteFaceID;
-                    const rulePath = "customer/contacts/facebook";
+                    const essence = 'customer';
+                    const rulePath = "*/contacts/facebook";
                     const pulePermission = 1;
 
                     it('should create new readOnly rule', async function () {
 
                         let res = await setGraph(`{
-                            createRule(rulePath: "${rulePath}", permission: ${pulePermission}, description: "reading customers facebooks"){
+                            createRule(essence: "${essence}",rulePath: "${rulePath}", permission: ${pulePermission}, description: "reading customers facebooks"){
                                 id
+                                essence
                                 rulePath
                                 permission
                                 description
@@ -171,7 +173,7 @@ module.exports = function(tok) {
                     it('should create new ReadWrite rule', async function () {
 
                         let res = await setGraph(`{
-                            createRule(rulePath: "${rulePath}", permission: 3, description: "reading and writing customers facebooks"){
+                            createRule(essence: "${essence}",rulePath: "${rulePath}", permission: 3, description: "reading and writing customers facebooks"){
                                 id
                                 rulePath
                                 permission
